@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@import "mgv-backoffice/dist/style.css";
+
+/*
+  Tailwind v4 changed the default `border-color` from `gray-200` to
+  `currentColor`. That meant every `border` utility without an explicit
+  `border-{color}` token rendered in the element's text colour — which
+  on a light surface is near-black, on a dark surface is near-white.
+  Most of the app already supplies an explicit border colour via the
+  theme composable, but a few bare `border` utilities remain (badges
+  whose colour-bearing class is conditional, dividers around stat
+  cards, etc.) and were rendering as solid black on light mode.
+
+  This rule restores v3's default by setting a sensible base
+  border-color on every element (and pseudo). Anything that explicitly
+  sets `border-{color}` overrides it, so this is invisible to all the
+  styled cases.
+
+  Reference: Tailwind v4 upgrade guide,
+  "Default border color has changed to currentColor".
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+/*
+  Give native <select> elements breathing room for the native chevron.
+  The rule is wrapped in @layer base and uses :where(), which gives it
+  specificity 0 — any class-scoped rule from mgv-backoffice (or elsewhere)
+  wins, so the padding can't bleed into third-party component selects that
+  already size themselves precisely. App-owned <select>s, which have no
+  conflicting rule, still get the chevron clearance.
+*/
+@layer base {
+  :where(select) {
+    padding-right: 2rem;
+  }
+
+  /*
+    Make every clickable thing show the hand cursor by default. Covers
+    native <button>, ARIA role="button", anchors, <summary>, form labels,
+    clickable inputs (submit/button/reset/checkbox/radio), and — via the
+    SVG selector — any icon nested inside one of those. Icons get
+    `pointer-events: none` so clicks pass through to the parent button,
+    which keeps click targets (and hover states) on the actual control
+    rather than the decoration.
+
+    Disabled controls opt out explicitly so users get the correct affordance.
+  */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  summary,
+  label[for],
+  input[type="submit"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  /*
+    Icons inside clickable elements shouldn't swallow the click or change
+    the cursor — let the parent decide both.
+  */
+  button svg,
+  [role="button"] svg,
+  a svg,
+  summary svg,
+  label svg {
+    pointer-events: none;
+  }
+}
+
+/*
+  Dark-mode workaround for mgv-backoffice dialogs (BaseModalShell,
+  BaseConfirmModal, etc.).
+
+  Those components bind class lists via object-property refs from
+  `useThemeClasses()` — e.g. `:class="t.primaryText"`. Vue's compiler
+  doesn't auto-unwrap nested ref properties on plain objects, so the
+  raw ref gets stringified into the class attribute (you can see the
+  `__v_isRef` / `flags` / `globalVersion` token leak on inspect) and
+  the intended dark-mode utility classes never get applied. Outside
+  modals this is masked because text colour is inherited from the
+  BaseAppLayout root; modals use <Teleport to="body">, lose that
+  inheritance, and end up rendering dark text on dark backgrounds.
+
+  Patching the third-party bundle is fragile, so override visually
+  here for the specific elements that are demonstrably broken (title
+  heading + the implicit Cancel button — the one with `border` and no
+  `bg-*` class). Confirm/danger buttons always set their own bg
+  explicitly and are unaffected.
+*/
+@layer base {
+  /*
+    Set a sensible default text colour for the whole dialog so any
+    descendant whose `:class="t.X"` ref-binding got dropped still
+    renders in a readable light grey on the dark card instead of
+    inheriting black from <body>. Specific descendants with explicit
+    `text-*` colour classes (red errors, emerald accents, etc.) still
+    win because Tailwind utilities have higher specificity.
+  */
+  html.dark [role="dialog"][aria-modal="true"] {
+    color: #e5e7eb; /* gray-200 */
+  }
+  html.dark [role="dialog"][aria-modal="true"] h3 {
+    color: #f9fafb; /* gray-50 — matches `text-white` intent */
+  }
+
+  /*
+    Inputs / selects / textareas inside a dark modal also rely on
+    `:class="t.input"` and lose their fill+text colour on the ref
+    leak. Force a dark fill with light text so the field is usable.
+  */
+  html.dark [role="dialog"][aria-modal="true"] input:not([type="checkbox"]):not([type="radio"]),
+  html.dark [role="dialog"][aria-modal="true"] select,
+  html.dark [role="dialog"][aria-modal="true"] textarea {
+    background-color: #1f2937; /* gray-800 */
+    color: #f3f4f6; /* gray-100 */
+    border-color: #4b5563; /* gray-600 */
+  }
+  html.dark [role="dialog"][aria-modal="true"] input::placeholder,
+  html.dark [role="dialog"][aria-modal="true"] textarea::placeholder {
+    color: #9ca3af; /* gray-400 */
+  }
+
+  /*
+    Cancel-style buttons inside a dark modal: the `t.ghostButton` ref
+    leak strips the bg/text/border colours. Target buttons that carry
+    the static `border` utility but no `bg-*` colour class, scoped
+    inside a dark dialog.
+  */
+  html.dark [role="dialog"][aria-modal="true"] button.border:not([class*="bg-"]) {
+    background-color: #1f2937; /* gray-800 */
+    color: #e5e7eb; /* gray-200 */
+    border-color: #4b5563; /* gray-600 */
+  }
+  html.dark [role="dialog"][aria-modal="true"] button.border:not([class*="bg-"]):hover {
+    background-color: #374151; /* gray-700 */
+  }
+}
