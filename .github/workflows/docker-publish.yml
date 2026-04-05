@@ -1,0 +1,111 @@
+name: Build & Publish Docker images
+
+# Runs on every commit to main (and on manual dispatch).
+# Builds linux/amd64 + linux/arm64 images for the Spring Boot backend (/service)
+# and the Vue/Nginx frontend (/UI), then publishes both to GitHub Container
+# Registry (ghcr.io) using the built-in GITHUB_TOKEN — no extra secrets needed.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One run per ref. Newer pushes to main cancel stale in-flight builds.
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Build & push (${{ matrix.component.name }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - name: service
+            context: ./service
+            image: wiremate-service
+          - name: ui
+            context: ./UI
+            image: wiremate-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # GHCR image names must be lowercase. ${{ github.repository_owner }}
+      # can be mixed case, so normalise it once and reuse.
+      - name: Normalise image name
+        id: img
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "ref=${REGISTRY}/${owner}/${{ matrix.component.image }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU (for arm64 emulation)
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tags & labels
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.img.outputs.ref }}
+          # Tagging strategy for main-only workflow:
+          #   - :latest          always points at the newest main build
+          #   - :main            rolling tag for the main branch
+          #   - :main-<sha>      immutable, traceable reference per commit
+          #   - :sha-<sha>       convenience tag for sha-only pins
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha,prefix=main-,format=short
+            type=sha,prefix=sha-,format=short
+          labels: |
+            org.opencontainers.image.title=${{ matrix.component.image }}
+            org.opencontainers.image.description=WireMate ${{ matrix.component.name }} component
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.component.context }}
+          file: ${{ matrix.component.context }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Layer cache via GitHub Actions cache backend — massively speeds
+          # up subsequent builds (especially the Maven dependency layer).
+          cache-from: type=gha,scope=${{ matrix.component.name }}
+          cache-to: type=gha,scope=${{ matrix.component.name }},mode=max
+
+      - name: Summary
+        run: |
+          echo "### Pushed \`${{ matrix.component.image }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Platforms:** linux/amd64, linux/arm64" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Tags:**" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.meta.outputs.tags }}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: wiremate-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: wiremate
+      POSTGRES_PASSWORD: wiremate
+      POSTGRES_DB: wiremate
+    volumes:
+      - ${DATA_PATH}\postgress:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wiremate"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wiremate-network
+
+  wiremock:
+    image: wiremock/wiremock:3.6.0
+    container_name: wiremate-wiremock
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${DATA_PATH}\wiremock\mappings:/home/wiremock/mappings
+      - ${DATA_PATH}\wiremate\wiremock\__files:/home/wiremock/__files
+    command: --verbose --enable-stub-cors
+    networks:
+      - wiremate-network
+
+  backend:
+    # Pulled from GitHub Container Registry — built & pushed by
+    # .github/workflows/docker-publish.yml on every commit to main.
+    image: ghcr.io/mixaverros88/wiremate-service:latest
+    container_name: wiremate-backend
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: wiremate
+      DB_USER: wiremate
+      DB_PASSWORD: wiremate
+      SERVER_PORT: 8081
+      APP_WIREMOCK_BASE_URL: http://wiremock:8080
+      APP_WIREMOCK_MAIN_PATH: /__admin/mappings
+      APP_CROSS_CHECK_TASK_MS: 10000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wiremate-network
+
+  ui:
+    image: ghcr.io/mixaverros88/wiremate-ui:latest
+    container_name: wiremate-ui
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - wiremate-network
+    volumes:
+      - ./config.js:/usr/share/nginx/html/config.js:ro
+
+networks:
+  wiremate-network:

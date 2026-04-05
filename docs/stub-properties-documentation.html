@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WireMock Stub Properties Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --bg-card: #13161f;
+    --bg-code: #0a0c11;
+    --border: #1e2233;
+    --border-bright: #2d3452;
+    --accent: #e8613a;
+    --accent2: #5b9cf6;
+    --accent3: #a78bfa;
+    --accent4: #34d399;
+    --text: #c8d0e8;
+    --text-dim: #6b7499;
+    --text-bright: #eef0f8;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.3px;
+  }
+  .sidebar-logo .wordmark span { color: var(--accent); }
+  .sidebar-logo .version {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .sidebar-section {
+    padding: 20px 0 10px;
+  }
+  .sidebar-section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 20px 8px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-item:hover {
+    color: var(--text-bright);
+    background: rgba(255,255,255,0.03);
+    border-left-color: var(--border-bright);
+  }
+  .sidebar-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(232,97,58,0.05);
+  }
+  .sidebar-item .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  /* ─── MAIN ─────────────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 0 80px;
+  }
+
+  /* ─── HERO ─────────────────────────────────── */
+  .hero {
+    padding: 60px 60px 48px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(232,97,58,0.04) 0%, transparent 60%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'STUB';
+    position: absolute;
+    right: 40px; top: 30px;
+    font-size: 100px;
+    font-weight: 800;
+    font-family: 'Syne', sans-serif;
+    color: rgba(255,255,255,0.02);
+    letter-spacing: -4px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(232,97,58,0.3);
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--text-bright);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    color: var(--accent);
+    font-style: normal;
+  }
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 660px;
+    line-height: 1.7;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 36px;
+  }
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+  .hero-stat .label {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ─── CONTENT ──────────────────────────────── */
+  .content { padding: 0 60px; }
+
+  section {
+    padding: 48px 0 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+  }
+  .section-anchor {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    max-width: 700px;
+    line-height: 1.7;
+  }
+
+  /* ─── PROPERTY CARDS ───────────────────────── */
+  .prop-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .prop-group-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+
+  .prop-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .prop-card:hover { border-color: var(--border-bright); }
+
+  .prop-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    cursor: pointer;
+  }
+  .prop-header:hover { background: rgba(255,255,255,0.01); }
+
+  .prop-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent3);
+    min-width: 180px;
+    flex-shrink: 0;
+  }
+
+  .prop-type {
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(91,156,246,0.08);
+    border: 1px solid rgba(91,156,246,0.15);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .prop-req {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .prop-req.required {
+    color: var(--accent);
+    background: rgba(232,97,58,0.08);
+    border: 1px solid rgba(232,97,58,0.2);
+  }
+  .prop-req.optional {
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+  }
+
+  .prop-summary {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 1;
+  }
+
+  .chevron {
+    color: var(--text-dim);
+    font-size: 10px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .prop-header.open .chevron { transform: rotate(180deg); }
+
+  .prop-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 18px;
+    background: rgba(0,0,0,0.2);
+  }
+  .prop-body.open { display: block; }
+
+  .prop-desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .prop-values {
+    margin-top: 10px;
+  }
+  .prop-values-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .val-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .val-item {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--accent4);
+  }
+
+  /* ─── CODE BLOCKS ──────────────────────────── */
+  .code-block {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-block-lang {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .copy-btn {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .copy-btn:hover { color: var(--text-bright); background: rgba(255,255,255,0.05); }
+  .code-block pre {
+    padding: 16px;
+    font-size: 11.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .kw  { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .key { color: #82aaff; }
+  .cmt { color: #546e7a; font-style: italic; }
+
+  /* ─── INFO BOXES ───────────────────────────── */
+  .info-box {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 5px;
+    margin: 16px 0;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .info-box.note   { background: rgba(91,156,246,0.06); border: 1px solid rgba(91,156,246,0.15); }
+  .info-box.warn   { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); }
+  .info-box.tip    { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); }
+  .info-box .icon  { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .info-box.note .label  { color: var(--accent2); }
+  .info-box.warn .label  { color: #f59e0b; }
+  .info-box.tip .label   { color: var(--accent4); }
+  .info-box .label { font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .info-box-text { color: var(--text-dim); }
+
+  /* ─── PARAM TABLE ──────────────────────────── */
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+  .param-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .param-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: top;
+  }
+  .param-table tr:last-child td { border-bottom: none; }
+  .td-name { color: var(--accent3); font-weight: 500; white-space: nowrap; }
+  .td-type { color: var(--accent2); font-size: 11px; }
+  .td-desc { color: var(--text-dim); line-height: 1.6; }
+
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent3);
+  }
+
+  /* ─── SCROLLBAR ────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ──────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Wire<span>Mate</span></div>
+    <div class="version">Stub Properties Reference</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a class="sidebar-item active" href="#overview"><span class="dot"></span>Introduction</a>
+    <a class="sidebar-item" href="#full-example"><span class="dot"></span>Full Example</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Top-Level</div>
+    <a class="sidebar-item" href="#top-level"><span class="dot"></span>Stub Root Properties</a>
+    <a class="sidebar-item" href="#scenarios-props"><span class="dot"></span>Scenario Properties</a>
+    <a class="sidebar-item" href="#metadata-props"><span class="dot"></span>Metadata</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Request Matching</div>
+    <a class="sidebar-item" href="#request-basic"><span class="dot"></span>URL &amp; Method</a>
+    <a class="sidebar-item" href="#request-headers"><span class="dot"></span>Headers &amp; Cookies</a>
+    <a class="sidebar-item" href="#request-query"><span class="dot"></span>Query Parameters</a>
+    <a class="sidebar-item" href="#request-body"><span class="dot"></span>Body Patterns</a>
+    <a class="sidebar-item" href="#request-auth"><span class="dot"></span>Basic Auth</a>
+    <a class="sidebar-item" href="#request-multipart"><span class="dot"></span>Multipart</a>
+    <a class="sidebar-item" href="#request-custom"><span class="dot"></span>Custom Matcher</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">String Matchers</div>
+    <a class="sidebar-item" href="#matchers"><span class="dot"></span>Matcher Operators</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Response Definition</div>
+    <a class="sidebar-item" href="#response-basic"><span class="dot"></span>Status &amp; Body</a>
+    <a class="sidebar-item" href="#response-headers"><span class="dot"></span>Response Headers</a>
+    <a class="sidebar-item" href="#response-delay"><span class="dot"></span>Delays</a>
+    <a class="sidebar-item" href="#response-fault"><span class="dot"></span>Fault Simulation</a>
+    <a class="sidebar-item" href="#response-proxy"><span class="dot"></span>Proxying</a>
+    <a class="sidebar-item" href="#response-transform"><span class="dot"></span>Transformers</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Advanced</div>
+    <a class="sidebar-item" href="#webhooks"><span class="dot"></span>Webhooks / Post-Serve</a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─────────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Property Reference</div>
+    <h1>Stub Mapping <em>Properties</em></h1>
+    <p class="hero-desc">
+      A comprehensive reference of every property available when defining a WireMock stub mapping.
+      Covers top-level fields, request matchers, response definitions, delays, faults, proxying,
+      transformers, scenarios, metadata, and webhooks.
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">60+</div>
+        <div class="label">Properties</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">15</div>
+        <div class="label">Matcher Types</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">v3.x</div>
+        <div class="label">WireMock</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ─── OVERVIEW ─── -->
+    <section id="overview">
+      <div class="section-header">
+        <h2>Overview</h2>
+        <span class="section-anchor">#overview</span>
+      </div>
+      <p class="section-desc">
+        A stub mapping is a JSON object POSTed to
+        <span class="inline-code">/__admin/mappings</span>. It pairs a
+        <strong style="color:var(--text-bright)">request</strong> pattern (what to match) with a
+        <strong style="color:var(--text-bright)">response</strong> definition (what to return).
+        Additional top-level fields control priority, persistence, scenarios, metadata, and
+        post-serve actions like webhooks.
+      </p>
+
+      <div class="info-box tip">
+        <div class="icon">&#x1f4a1;</div>
+        <div>
+          <div class="label">Quick Reference</div>
+          <div class="info-box-text">
+            Only <span class="inline-code">request</span> and <span class="inline-code">response</span>
+            are required. Everything else is optional and lets you fine-tune matching, add delays,
+            simulate faults, or drive stateful scenarios.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FULL EXAMPLE ─── -->
+    <section id="full-example">
+      <div class="section-header">
+        <h2>Full Example</h2>
+        <span class="section-anchor">#full-example</span>
+      </div>
+      <p class="section-desc">
+        A comprehensive stub mapping demonstrating many of the available properties.
+      </p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-lang">Complete Stub Mapping</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>{
+  <span class="key">"id"</span>: <span class="str">"76ada7b0-a177-4f21-a3ab-c03c78a2e004"</span>,
+  <span class="key">"name"</span>: <span class="str">"Create user endpoint"</span>,
+  <span class="key">"priority"</span>: <span class="num">1</span>,
+  <span class="key">"persistent"</span>: <span class="kw">true</span>,
+
+  <span class="key">"scenarioName"</span>: <span class="str">"user-flow"</span>,
+  <span class="key">"requiredScenarioState"</span>: <span class="str">"Started"</span>,
+  <span class="key">"newScenarioState"</span>: <span class="str">"user-created"</span>,
+
+  <span class="key">"request"</span>: {
+    <span class="key">"method"</span>: <span class="str">"POST"</span>,
+    <span class="key">"urlPath"</span>: <span class="str">"/api/users"</span>,
+    <span class="key">"headers"</span>: {
+      <span class="key">"Content-Type"</span>: { <span class="key">"equalTo"</span>: <span class="str">"application/json"</span> },
+      <span class="key">"Authorization"</span>: { <span class="key">"matches"</span>: <span class="str">"Bearer .*"</span> }
+    },
+    <span class="key">"queryParameters"</span>: {
+      <span class="key">"verbose"</span>: { <span class="key">"equalTo"</span>: <span class="str">"true"</span> }
+    },
+    <span class="key">"bodyPatterns"</span>: [
+      { <span class="key">"matchesJsonPath"</span>: <span class="str">"$.name"</span> },
+      { <span class="key">"equalToJson"</span>: <span class="str">"{\"role\":\"admin\"}"</span>, <span class="key">"ignoreExtraElements"</span>: <span class="kw">true</span> }
+    ]
+  },
+
+  <span class="key">"response"</span>: {
+    <span class="key">"status"</span>: <span class="num">201</span>,
+    <span class="key">"statusMessage"</span>: <span class="str">"Created"</span>,
+    <span class="key">"headers"</span>: {
+      <span class="key">"Content-Type"</span>: <span class="str">"application/json"</span>,
+      <span class="key">"X-Request-Id"</span>: <span class="str">"{{randomValue type='UUID'}}"</span>
+    },
+    <span class="key">"jsonBody"</span>: { <span class="key">"id"</span>: <span class="num">1</span>, <span class="key">"name"</span>: <span class="str">"Alice"</span> },
+    <span class="key">"fixedDelayMilliseconds"</span>: <span class="num">150</span>,
+    <span class="key">"transformers"</span>: [<span class="str">"response-template"</span>]
+  },
+
+  <span class="key">"metadata"</span>: {
+    <span class="key">"team"</span>: <span class="str">"backend"</span>,
+    <span class="key">"sprint"</span>: <span class="num">12</span>
+  }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  TOP-LEVEL PROPERTIES                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="top-level">
+      <div class="section-header">
+        <h2>Top-Level Properties</h2>
+        <span class="section-anchor">#top-level</span>
+      </div>
+      <p class="section-desc">
+        These properties sit at the root of the stub mapping JSON object.
+        Only <span class="inline-code">request</span> and <span class="inline-code">response</span>
+        are required to create a functional stub.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">id</span>
+            <span class="prop-type">string (UUID)</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Server-assigned or user-provided unique identifier</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A UUID that uniquely identifies this stub mapping. If omitted when creating a stub,
+              WireMock will generate one automatically. You can supply your own UUID if you want
+              deterministic IDs for version control or idempotent updates.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"id"</span>: <span class="str">"76ada7b0-a177-4f21-a3ab-c03c78a2e004"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">name</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Human-readable label for the stub</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A descriptive name for the stub. Has no functional effect on matching but is
+              extremely useful for identifying stubs in the admin UI, logs, and API responses.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"name"</span>: <span class="str">"Get all users - happy path"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">priority</span>
+            <span class="prop-type">integer</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Lower number = higher priority (default: 5)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              When multiple stubs match an incoming request, the one with the lowest priority number wins.
+              The default priority is 5. Use priority 1 for specific overrides and higher numbers for
+              catch-all fallbacks.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"priority"</span>: <span class="num">1</span>   <span class="cmt">// highest priority — matches before default (5)</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">persistent</span>
+            <span class="prop-type">boolean</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Survive resets (default: false)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              When <span class="inline-code">true</span>, this stub survives calls to
+              <span class="inline-code">POST /__admin/mappings/reset</span> and
+              <span class="inline-code">POST /__admin/reset</span>. Non-persistent stubs are
+              wiped on reset. Stubs loaded from JSON files on disk are implicitly persistent.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"persistent"</span>: <span class="kw">true</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">request</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req required">Required</span>
+            <span class="prop-summary">Request matching criteria</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Defines the criteria an incoming request must satisfy for this stub to match.
+              Contains URL matching, HTTP method, headers, query parameters, cookies, and body patterns.
+              See the <strong style="color:var(--text-bright)">Request Matching</strong> sections below for all sub-properties.
+            </p>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">response</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req required">Required</span>
+            <span class="prop-summary">Response to return when matched</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Defines the HTTP response WireMock returns when this stub matches.
+              Includes status code, headers, body content, delays, faults, and proxy behavior.
+              See the <strong style="color:var(--text-bright)">Response Definition</strong> sections below for all sub-properties.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── SCENARIO PROPERTIES ─── -->
+    <section id="scenarios-props">
+      <div class="section-header">
+        <h2>Scenario Properties</h2>
+        <span class="section-anchor">#scenarios-props</span>
+      </div>
+      <p class="section-desc">
+        Scenarios enable stateful behaviour. A stub can be conditional on the current state of a
+        named scenario and can transition it to a new state when matched.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">scenarioName</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Assigns the stub to a named scenario</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The name of the scenario this stub belongs to. All stubs sharing the same scenario name
+              participate in the same state machine. Scenarios always start in the
+              <span class="inline-code">Started</span> state.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"scenarioName"</span>: <span class="str">"order-flow"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">requiredScenarioState</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Only match when scenario is in this state</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The scenario must be in this state for the stub to match. If omitted, the stub matches
+              regardless of scenario state. The initial state is always <span class="inline-code">Started</span>.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"requiredScenarioState"</span>: <span class="str">"Started"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">newScenarioState</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Transition scenario to this state after match</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              After this stub matches, the scenario transitions to this new state. Subsequent requests
+              will then be matched against stubs requiring the new state. If omitted, the scenario state
+              remains unchanged.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"newScenarioState"</span>: <span class="str">"user-created"</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── METADATA ─── -->
+    <section id="metadata-props">
+      <div class="section-header">
+        <h2>Metadata</h2>
+        <span class="section-anchor">#metadata-props</span>
+      </div>
+      <p class="section-desc">
+        Arbitrary key-value data you can attach to a stub for tagging, filtering, and bulk operations.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">metadata</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Arbitrary tags for find/remove operations</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A freeform JSON object. You can store any key-value pairs here. Metadata is searchable
+              via <span class="inline-code">POST /__admin/mappings/find-by-metadata</span> and
+              <span class="inline-code">POST /__admin/mappings/remove-by-metadata</span>.
+              Common uses include tagging stubs with team names, test run IDs, or environment labels.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"metadata"</span>: {
+  <span class="key">"team"</span>: <span class="str">"backend"</span>,
+  <span class="key">"testRunId"</span>: <span class="str">"run-2024-001"</span>,
+  <span class="key">"environment"</span>: <span class="str">"staging"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  REQUEST MATCHING                           -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- ─── URL & METHOD ─── -->
+    <section id="request-basic">
+      <div class="section-header">
+        <h2>Request &mdash; URL &amp; Method</h2>
+        <span class="section-anchor">#request-basic</span>
+      </div>
+      <p class="section-desc">
+        Every request matcher needs at least a URL strategy. Use exactly one of the four URL properties.
+        The <span class="inline-code">method</span> field restricts which HTTP verb to match.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">method</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">HTTP method to match (default: ANY)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The HTTP method the incoming request must use. If omitted, any method matches.
+              Use <span class="inline-code">ANY</span> explicitly to match all methods.
+            </p>
+            <div class="prop-values">
+              <div class="prop-values-title">Accepted Values</div>
+              <div class="val-list">
+                <span class="val-item">GET</span>
+                <span class="val-item">POST</span>
+                <span class="val-item">PUT</span>
+                <span class="val-item">DELETE</span>
+                <span class="val-item">PATCH</span>
+                <span class="val-item">HEAD</span>
+                <span class="val-item">OPTIONS</span>
+                <span class="val-item">TRACE</span>
+                <span class="val-item">ANY</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">url</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Use one</span>
+            <span class="prop-summary">Exact full URL match (path + query string)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Matches the entire URL including path and query string. The match is exact and
+              case-sensitive. Use this when you need to match a specific path with specific query parameters.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"url"</span>: <span class="str">"/api/users?status=active&amp;page=1"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">urlPath</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Use one</span>
+            <span class="prop-summary">Exact path match (ignores query string)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Matches only the path component, ignoring any query parameters. This is the most
+              commonly used URL matcher. Combine with <span class="inline-code">queryParameters</span>
+              for selective query matching.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"urlPath"</span>: <span class="str">"/api/users"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">urlPattern</span>
+            <span class="prop-type">string (regex)</span>
+            <span class="prop-req optional">Use one</span>
+            <span class="prop-summary">Regex match on full URL (path + query string)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Matches the full URL (path + query) against a Java-style regular expression.
+              The regex must match the entire URL, not just a substring.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"urlPattern"</span>: <span class="str">"/api/users/[0-9]+\\?.*"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">urlPathPattern</span>
+            <span class="prop-type">string (regex)</span>
+            <span class="prop-req optional">Use one</span>
+            <span class="prop-summary">Regex match on path only (ignores query string)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Matches only the path component against a regex, ignoring query parameters.
+              The most flexible URL matcher for dynamic path segments.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"urlPathPattern"</span>: <span class="str">"/api/users/[0-9]+"</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="info-box note">
+        <div class="icon">&#x2139;&#xFE0F;</div>
+        <div>
+          <div class="label">URL Matching Rules</div>
+          <div class="info-box-text">
+            Use exactly <strong>one</strong> URL property per request. If you need path matching with
+            query parameter constraints, use <span class="inline-code">urlPath</span> or
+            <span class="inline-code">urlPathPattern</span> together with the
+            <span class="inline-code">queryParameters</span> object.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── HEADERS & COOKIES ─── -->
+    <section id="request-headers">
+      <div class="section-header">
+        <h2>Request &mdash; Headers &amp; Cookies</h2>
+        <span class="section-anchor">#request-headers</span>
+      </div>
+      <p class="section-desc">
+        Match on specific HTTP headers or cookies. Each entry uses a
+        <strong style="color:var(--text-bright)">string matcher operator</strong> (see Matchers section).
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">headers</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Header matchers keyed by header name</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An object where each key is a header name and the value is a matcher operator.
+              All specified headers must match for the stub to trigger. Header names are case-insensitive.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"headers"</span>: {
+  <span class="key">"Content-Type"</span>: { <span class="key">"equalTo"</span>: <span class="str">"application/json"</span> },
+  <span class="key">"Authorization"</span>: { <span class="key">"matches"</span>: <span class="str">"Bearer .*"</span> },
+  <span class="key">"X-Debug"</span>: { <span class="key">"absent"</span>: <span class="kw">true</span> }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">cookies</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Cookie matchers keyed by cookie name</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An object where each key is a cookie name and the value is a matcher operator.
+              Works identically to header matching but targets cookies from the
+              <span class="inline-code">Cookie</span> header.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"cookies"</span>: {
+  <span class="key">"session"</span>: { <span class="key">"matches"</span>: <span class="str">"[a-f0-9]{32}"</span> },
+  <span class="key">"debug"</span>: { <span class="key">"contains"</span>: <span class="str">"verbose"</span> }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── QUERY PARAMETERS ─── -->
+    <section id="request-query">
+      <div class="section-header">
+        <h2>Request &mdash; Query Parameters</h2>
+        <span class="section-anchor">#request-query</span>
+      </div>
+      <p class="section-desc">
+        Match specific query string parameters using the same matcher operators as headers.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">queryParameters</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Query param matchers keyed by param name</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An object where each key is a query parameter name and the value is a matcher.
+              Best used with <span class="inline-code">urlPath</span> or
+              <span class="inline-code">urlPathPattern</span> (not
+              <span class="inline-code">url</span> which already includes the query string).
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"queryParameters"</span>: {
+  <span class="key">"page"</span>: { <span class="key">"equalTo"</span>: <span class="str">"1"</span> },
+  <span class="key">"search"</span>: { <span class="key">"contains"</span>: <span class="str">"alice"</span> },
+  <span class="key">"sort"</span>: { <span class="key">"absent"</span>: <span class="kw">true</span> }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── BODY PATTERNS ─── -->
+    <section id="request-body">
+      <div class="section-header">
+        <h2>Request &mdash; Body Patterns</h2>
+        <span class="section-anchor">#request-body</span>
+      </div>
+      <p class="section-desc">
+        An array of matchers applied to the request body. All patterns must match (AND logic).
+        Supports string matching, JSON matching, XML matching, JSONPath, XPath, and binary comparison.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">bodyPatterns</span>
+            <span class="prop-type">array</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Array of body matcher objects</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Each element is a matcher object. All elements must match for the stub to trigger.
+              The available body matcher operators are listed below.
+            </p>
+
+            <table class="param-table">
+              <thead><tr><th>Operator</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">equalTo</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc">Exact string match on the full body</td>
+                </tr>
+                <tr>
+                  <td class="td-name">contains</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc">Body must contain this substring</td>
+                </tr>
+                <tr>
+                  <td class="td-name">matches</td>
+                  <td class="td-type">string (regex)</td>
+                  <td class="td-desc">Body matches this regex pattern</td>
+                </tr>
+                <tr>
+                  <td class="td-name">doesNotMatch</td>
+                  <td class="td-type">string (regex)</td>
+                  <td class="td-desc">Body must NOT match this regex</td>
+                </tr>
+                <tr>
+                  <td class="td-name">equalToJson</td>
+                  <td class="td-type">string (JSON)</td>
+                  <td class="td-desc">Semantic JSON equality (order-insensitive for objects)</td>
+                </tr>
+                <tr>
+                  <td class="td-name">matchesJsonPath</td>
+                  <td class="td-type">string (JSONPath)</td>
+                  <td class="td-desc">Body satisfies a JSONPath expression</td>
+                </tr>
+                <tr>
+                  <td class="td-name">equalToXml</td>
+                  <td class="td-type">string (XML)</td>
+                  <td class="td-desc">Semantic XML equality (ignores whitespace &amp; attribute order)</td>
+                </tr>
+                <tr>
+                  <td class="td-name">matchesXPath</td>
+                  <td class="td-type">string (XPath)</td>
+                  <td class="td-desc">Body satisfies an XPath expression</td>
+                </tr>
+                <tr>
+                  <td class="td-name">binaryEqualTo</td>
+                  <td class="td-type">string (base64)</td>
+                  <td class="td-desc">Exact binary match (base64-encoded expected value)</td>
+                </tr>
+                <tr>
+                  <td class="td-name">absent</td>
+                  <td class="td-type">boolean</td>
+                  <td class="td-desc">Body must be empty / absent</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">JSON Body Matching</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"bodyPatterns"</span>: [
+  {
+    <span class="key">"equalToJson"</span>: <span class="str">"{\"name\":\"Alice\",\"role\":\"admin\"}"</span>,
+    <span class="key">"ignoreArrayOrder"</span>: <span class="kw">true</span>,
+    <span class="key">"ignoreExtraElements"</span>: <span class="kw">true</span>
+  }
+]</pre>
+            </div>
+
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">JSONPath Matching</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"bodyPatterns"</span>: [
+  { <span class="key">"matchesJsonPath"</span>: <span class="str">"$.name"</span> },
+  { <span class="key">"matchesJsonPath"</span>: <span class="str">"$[?(@.age > 18)]"</span> },
+  {
+    <span class="key">"matchesJsonPath"</span>: {
+      <span class="key">"expression"</span>: <span class="str">"$.name"</span>,
+      <span class="key">"equalTo"</span>: <span class="str">"Alice"</span>
+    }
+  }
+]</pre>
+            </div>
+
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">XML / XPath Matching</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"bodyPatterns"</span>: [
+  {
+    <span class="key">"matchesXPath"</span>: <span class="str">"/users/user[@id='1']"</span>,
+    <span class="key">"xPathNamespaces"</span>: {
+      <span class="key">"ns"</span>: <span class="str">"http://example.com/ns"</span>
+    }
+  }
+]</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="icon">&#x1f4a1;</div>
+        <div>
+          <div class="label">equalToJson Modifiers</div>
+          <div class="info-box-text">
+            When using <span class="inline-code">equalToJson</span>, add
+            <span class="inline-code">"ignoreArrayOrder": true</span> to ignore array element order
+            and <span class="inline-code">"ignoreExtraElements": true</span> to allow the request to
+            contain additional fields not in the expected JSON.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── BASIC AUTH ─── -->
+    <section id="request-auth">
+      <div class="section-header">
+        <h2>Request &mdash; Basic Auth</h2>
+        <span class="section-anchor">#request-auth</span>
+      </div>
+      <p class="section-desc">
+        A shorthand for matching HTTP Basic Authentication credentials without manually decoding
+        the Authorization header.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">basicAuthCredentials</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Match username/password from Basic auth</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Matches the decoded username and password from the
+              <span class="inline-code">Authorization: Basic ...</span> header.
+            </p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">username</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc">Expected username</td>
+                </tr>
+                <tr>
+                  <td class="td-name">password</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc">Expected password</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"basicAuthCredentials"</span>: {
+  <span class="key">"username"</span>: <span class="str">"admin"</span>,
+  <span class="key">"password"</span>: <span class="str">"secret123"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── MULTIPART ─── -->
+    <section id="request-multipart">
+      <div class="section-header">
+        <h2>Request &mdash; Multipart</h2>
+        <span class="section-anchor">#request-multipart</span>
+      </div>
+      <p class="section-desc">
+        Match individual parts of a <span class="inline-code">multipart/form-data</span> request.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">multipartPatterns</span>
+            <span class="prop-type">array</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Matchers for multipart form data parts</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An array of part matchers. Each matcher can constrain the part name, headers, and body
+              using the same matcher operators available elsewhere.
+            </p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">matchingType</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc"><span class="inline-code">ANY</span> (at least one part matches) or <span class="inline-code">ALL</span> (every part matches)</td>
+                </tr>
+                <tr>
+                  <td class="td-name">headers</td>
+                  <td class="td-type">object</td>
+                  <td class="td-desc">Header matchers for the part (e.g., Content-Disposition)</td>
+                </tr>
+                <tr>
+                  <td class="td-name">bodyPatterns</td>
+                  <td class="td-type">array</td>
+                  <td class="td-desc">Body matchers applied to the part body</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"multipartPatterns"</span>: [
+  {
+    <span class="key">"matchingType"</span>: <span class="str">"ANY"</span>,
+    <span class="key">"headers"</span>: {
+      <span class="key">"Content-Disposition"</span>: {
+        <span class="key">"contains"</span>: <span class="str">"name=\"file\""</span>
+      }
+    },
+    <span class="key">"bodyPatterns"</span>: [
+      { <span class="key">"binaryEqualTo"</span>: <span class="str">"iVBORw0KGgo..."</span> }
+    ]
+  }
+]</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── CUSTOM MATCHER ─── -->
+    <section id="request-custom">
+      <div class="section-header">
+        <h2>Request &mdash; Custom Matcher</h2>
+        <span class="section-anchor">#request-custom</span>
+      </div>
+      <p class="section-desc">
+        Delegate request matching to a custom Java extension registered with WireMock.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">customMatcher</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Invoke a custom request matcher extension</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Invokes a custom matcher extension by name, passing optional parameters.
+              The extension must be registered in WireMock's classpath.
+            </p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">name</td>
+                  <td class="td-type">string</td>
+                  <td class="td-desc">The registered name of the custom matcher extension</td>
+                </tr>
+                <tr>
+                  <td class="td-name">parameters</td>
+                  <td class="td-type">object</td>
+                  <td class="td-desc">Arbitrary parameters passed to the matcher</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"customMatcher"</span>: {
+  <span class="key">"name"</span>: <span class="str">"my-ip-matcher"</span>,
+  <span class="key">"parameters"</span>: {
+    <span class="key">"allowedCidrs"</span>: [<span class="str">"10.0.0.0/8"</span>, <span class="str">"192.168.0.0/16"</span>]
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  STRING MATCHERS                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section id="matchers">
+      <div class="section-header">
+        <h2>String Matcher Operators</h2>
+        <span class="section-anchor">#matchers</span>
+      </div>
+      <p class="section-desc">
+        These operators are used wherever a value needs to be matched &mdash; headers, cookies,
+        query parameters, and body patterns. Each matcher object uses exactly one operator.
+      </p>
+
+      <table class="param-table">
+        <thead><tr><th>Operator</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-name">equalTo</td>
+            <td class="td-type">string</td>
+            <td class="td-desc">Exact string equality. Add <span class="inline-code">"caseInsensitive": true</span> for case-insensitive match.</td>
+          </tr>
+          <tr>
+            <td class="td-name">matches</td>
+            <td class="td-type">string (regex)</td>
+            <td class="td-desc">Value matches the Java regex pattern</td>
+          </tr>
+          <tr>
+            <td class="td-name">doesNotMatch</td>
+            <td class="td-type">string (regex)</td>
+            <td class="td-desc">Value does NOT match the regex (negative match)</td>
+          </tr>
+          <tr>
+            <td class="td-name">contains</td>
+            <td class="td-type">string</td>
+            <td class="td-desc">Value contains the given substring</td>
+          </tr>
+          <tr>
+            <td class="td-name">absent</td>
+            <td class="td-type">boolean</td>
+            <td class="td-desc">The header/param/cookie must NOT be present (set to <span class="inline-code">true</span>)</td>
+          </tr>
+          <tr>
+            <td class="td-name">equalToJson</td>
+            <td class="td-type">string (JSON)</td>
+            <td class="td-desc">Semantic JSON equality. Supports <span class="inline-code">ignoreArrayOrder</span> and <span class="inline-code">ignoreExtraElements</span>.</td>
+          </tr>
+          <tr>
+            <td class="td-name">matchesJsonPath</td>
+            <td class="td-type">string / object</td>
+            <td class="td-desc">JSONPath expression that must evaluate to a non-empty result. As an object, supports sub-matcher via <span class="inline-code">expression</span> + operator.</td>
+          </tr>
+          <tr>
+            <td class="td-name">equalToXml</td>
+            <td class="td-type">string (XML)</td>
+            <td class="td-desc">Semantic XML equality (ignores whitespace, attribute order). Supports <span class="inline-code">enablePlaceholders</span>.</td>
+          </tr>
+          <tr>
+            <td class="td-name">matchesXPath</td>
+            <td class="td-type">string / object</td>
+            <td class="td-desc">XPath expression. Supports <span class="inline-code">xPathNamespaces</span> for namespace-aware matching.</td>
+          </tr>
+          <tr>
+            <td class="td-name">binaryEqualTo</td>
+            <td class="td-type">string (base64)</td>
+            <td class="td-desc">Exact binary comparison. Value is base64-encoded.</td>
+          </tr>
+          <tr>
+            <td class="td-name">before</td>
+            <td class="td-type">string (datetime)</td>
+            <td class="td-desc">Date/time value is before the given ISO-8601 timestamp</td>
+          </tr>
+          <tr>
+            <td class="td-name">after</td>
+            <td class="td-type">string (datetime)</td>
+            <td class="td-desc">Date/time value is after the given ISO-8601 timestamp</td>
+          </tr>
+          <tr>
+            <td class="td-name">equalToDateTime</td>
+            <td class="td-type">string (datetime)</td>
+            <td class="td-desc">Date/time value equals the given ISO-8601 timestamp</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box note">
+        <div class="icon">&#x2139;&#xFE0F;</div>
+        <div>
+          <div class="label">Modifier Properties</div>
+          <div class="info-box-text">
+            Matchers can include modifier flags alongside the operator:
+            <span class="inline-code">"caseInsensitive": true</span> (for equalTo, contains),
+            <span class="inline-code">"ignoreArrayOrder": true</span> (for equalToJson),
+            <span class="inline-code">"ignoreExtraElements": true</span> (for equalToJson),
+            <span class="inline-code">"enablePlaceholders": true</span> (for equalToXml),
+            <span class="inline-code">"xPathNamespaces"</span> (for matchesXPath),
+            <span class="inline-code">"truncateExpected"</span> /
+            <span class="inline-code">"truncateActual"</span> (for datetime matchers),
+            <span class="inline-code">"expectedOffset"</span> /
+            <span class="inline-code">"expectedOffsetUnit"</span> (for relative datetime).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  RESPONSE DEFINITION                        -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- ─── STATUS & BODY ─── -->
+    <section id="response-basic">
+      <div class="section-header">
+        <h2>Response &mdash; Status &amp; Body</h2>
+        <span class="section-anchor">#response-basic</span>
+      </div>
+      <p class="section-desc">
+        The core response properties: HTTP status code and the body content. Use exactly one body
+        property per response.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">status</span>
+            <span class="prop-type">integer</span>
+            <span class="prop-req required">Required</span>
+            <span class="prop-summary">HTTP status code (e.g., 200, 404, 500)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The HTTP status code to return. Any valid HTTP status code is accepted (100-599).
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"status"</span>: <span class="num">200</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">statusMessage</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Custom HTTP reason phrase</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Overrides the default HTTP reason phrase (e.g., "OK", "Not Found").
+              Most modern HTTP clients ignore this, but it can be useful for legacy systems.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"statusMessage"</span>: <span class="str">"Everything is awesome"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">body</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Use one body type</span>
+            <span class="prop-summary">Plain text or escaped string body</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The response body as a plain string. Use this for text, HTML, or
+              escaped JSON. For JSON responses, prefer <span class="inline-code">jsonBody</span>.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"body"</span>: <span class="str">"Hello, World!"</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">jsonBody</span>
+            <span class="prop-type">object / array</span>
+            <span class="prop-req optional">Use one body type</span>
+            <span class="prop-summary">JSON body as a native object (no escaping)</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              The response body as a native JSON value. No string escaping needed &mdash;
+              the object is serialized to JSON automatically. This is the preferred way to return JSON.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"jsonBody"</span>: {
+  <span class="key">"id"</span>: <span class="num">1</span>,
+  <span class="key">"name"</span>: <span class="str">"Alice"</span>,
+  <span class="key">"roles"</span>: [<span class="str">"admin"</span>, <span class="str">"user"</span>]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">base64Body</span>
+            <span class="prop-type">string (base64)</span>
+            <span class="prop-req optional">Use one body type</span>
+            <span class="prop-summary">Binary body as base64-encoded string</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A base64-encoded binary body. Use for returning images, PDFs, or other binary content
+              directly from the stub definition.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"base64Body"</span>: <span class="str">"iVBORw0KGgoAAAANSUhEU..."</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">bodyFileName</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Use one body type</span>
+            <span class="prop-summary">Serve body from a file in __files/</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Path to a file in WireMock's <span class="inline-code">__files/</span> directory.
+              The file contents become the response body. Ideal for large responses or binary files.
+              Path is relative to the <span class="inline-code">__files</span> root.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"bodyFileName"</span>: <span class="str">"responses/users-list.json"</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── RESPONSE HEADERS ─── -->
+    <section id="response-headers">
+      <div class="section-header">
+        <h2>Response &mdash; Headers</h2>
+        <span class="section-anchor">#response-headers</span>
+      </div>
+      <p class="section-desc">
+        HTTP headers to include in the response.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">headers</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Response headers as key-value pairs</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An object where keys are header names and values are header values (strings).
+              For multiple values, use an array of strings. Supports response template syntax
+              when the <span class="inline-code">response-template</span> transformer is active.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"headers"</span>: {
+  <span class="key">"Content-Type"</span>: <span class="str">"application/json"</span>,
+  <span class="key">"Cache-Control"</span>: <span class="str">"no-cache"</span>,
+  <span class="key">"X-Request-Id"</span>: <span class="str">"{{randomValue type='UUID'}}"</span>,
+  <span class="key">"Set-Cookie"</span>: [<span class="str">"a=1"</span>, <span class="str">"b=2"</span>]
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DELAYS ─── -->
+    <section id="response-delay">
+      <div class="section-header">
+        <h2>Response &mdash; Delays</h2>
+        <span class="section-anchor">#response-delay</span>
+      </div>
+      <p class="section-desc">
+        Simulate network latency by adding delays before the response is sent. Use either a
+        fixed delay or a distribution for more realistic behavior.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">fixedDelayMilliseconds</span>
+            <span class="prop-type">integer</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Fixed delay in ms before responding</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A fixed delay in milliseconds applied before the response is sent.
+              Cannot be combined with <span class="inline-code">delayDistribution</span>.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"fixedDelayMilliseconds"</span>: <span class="num">500</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">delayDistribution</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Randomized delay from a distribution</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A randomized delay sampled from a statistical distribution. More realistic than a
+              fixed delay. Three distribution types are available.
+            </p>
+
+            <div class="prop-group-title">Uniform Distribution</div>
+            <p class="prop-desc">Random delay evenly distributed between lower and upper bounds.</p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">type</td><td class="td-type">"uniform"</td><td class="td-desc">Distribution type identifier</td></tr>
+                <tr><td class="td-name">lower</td><td class="td-type">integer</td><td class="td-desc">Minimum delay in milliseconds</td></tr>
+                <tr><td class="td-name">upper</td><td class="td-type">integer</td><td class="td-desc">Maximum delay in milliseconds</td></tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Uniform</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"delayDistribution"</span>: {
+  <span class="key">"type"</span>: <span class="str">"uniform"</span>,
+  <span class="key">"lower"</span>: <span class="num">50</span>,
+  <span class="key">"upper"</span>: <span class="num">300</span>
+}</pre>
+            </div>
+
+            <div class="prop-group-title">Log-Normal Distribution</div>
+            <p class="prop-desc">Models real-world latency: most responses are fast, some are slower. Uses median and sigma.</p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">type</td><td class="td-type">"lognormal"</td><td class="td-desc">Distribution type identifier</td></tr>
+                <tr><td class="td-name">median</td><td class="td-type">integer</td><td class="td-desc">Median delay in milliseconds</td></tr>
+                <tr><td class="td-name">sigma</td><td class="td-type">number</td><td class="td-desc">Standard deviation (higher = more variance)</td></tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Log-Normal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"delayDistribution"</span>: {
+  <span class="key">"type"</span>: <span class="str">"lognormal"</span>,
+  <span class="key">"median"</span>: <span class="num">100</span>,
+  <span class="key">"sigma"</span>: <span class="num">0.4</span>
+}</pre>
+            </div>
+
+            <div class="prop-group-title">Fixed Distribution</div>
+            <p class="prop-desc">An explicit fixed delay expressed as a distribution object.</p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">type</td><td class="td-type">"fixed"</td><td class="td-desc">Distribution type identifier</td></tr>
+                <tr><td class="td-name">milliseconds</td><td class="td-type">integer</td><td class="td-desc">Fixed delay in milliseconds</td></tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Fixed</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"delayDistribution"</span>: {
+  <span class="key">"type"</span>: <span class="str">"fixed"</span>,
+  <span class="key">"milliseconds"</span>: <span class="num">200</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">chunkedDribbleDelay</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Trickle response bytes over time</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Sends the response body in chunks over a specified duration, simulating a slow
+              connection. The total number of chunks and the total time can be configured.
+            </p>
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">numberOfChunks</td><td class="td-type">integer</td><td class="td-desc">Number of chunks to split the body into</td></tr>
+                <tr><td class="td-name">totalDuration</td><td class="td-type">integer</td><td class="td-desc">Total time in ms to send all chunks</td></tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"chunkedDribbleDelay"</span>: {
+  <span class="key">"numberOfChunks"</span>: <span class="num">5</span>,
+  <span class="key">"totalDuration"</span>: <span class="num">1000</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── FAULT SIMULATION ─── -->
+    <section id="response-fault">
+      <div class="section-header">
+        <h2>Response &mdash; Fault Simulation</h2>
+        <span class="section-anchor">#response-fault</span>
+      </div>
+      <p class="section-desc">
+        Simulate network-level failures instead of returning a normal HTTP response.
+        When <span class="inline-code">fault</span> is set, no body/status/headers are sent.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">fault</span>
+            <span class="prop-type">string</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Simulate a network fault</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Instead of returning a normal response, WireMock will simulate a network-level failure.
+              This is invaluable for testing client resilience and error handling.
+            </p>
+            <div class="prop-values">
+              <div class="prop-values-title">Accepted Values</div>
+              <div class="val-list">
+                <span class="val-item">EMPTY_RESPONSE</span>
+                <span class="val-item">MALFORMED_RESPONSE_CHUNK</span>
+                <span class="val-item">RANDOM_DATA_THEN_CLOSE</span>
+                <span class="val-item">CONNECTION_RESET_BY_PEER</span>
+              </div>
+            </div>
+            <table class="param-table" style="margin-top:12px">
+              <thead><tr><th>Value</th><th>Behavior</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">EMPTY_RESPONSE</td><td class="td-desc">Returns a completely empty response (no status line, no headers, no body), then closes the connection</td></tr>
+                <tr><td class="td-name">MALFORMED_RESPONSE_CHUNK</td><td class="td-desc">Sends an OK status header, then garbage data, then closes the connection</td></tr>
+                <tr><td class="td-name">RANDOM_DATA_THEN_CLOSE</td><td class="td-desc">Sends random bytes, then closes the connection without a valid HTTP response</td></tr>
+                <tr><td class="td-name">CONNECTION_RESET_BY_PEER</td><td class="td-desc">Immediately resets the TCP connection (RST)</td></tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"response"</span>: {
+  <span class="key">"fault"</span>: <span class="str">"CONNECTION_RESET_BY_PEER"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROXYING ─── -->
+    <section id="response-proxy">
+      <div class="section-header">
+        <h2>Response &mdash; Proxying</h2>
+        <span class="section-anchor">#response-proxy</span>
+      </div>
+      <p class="section-desc">
+        Instead of returning a canned response, proxy the request to a real backend service.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">proxyBaseUrl</span>
+            <span class="prop-type">string (URL)</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Forward request to this base URL</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              When set, WireMock forwards the matched request to this base URL and returns the
+              real response. The request path is appended to the proxy base URL. This turns the
+              stub into a selective proxy.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"response"</span>: {
+  <span class="key">"proxyBaseUrl"</span>: <span class="str">"https://api.real-service.com"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">additionalProxyRequestHeaders</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Extra headers to add when proxying</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              Headers to add or override on the proxied request before sending it upstream.
+              Only used when <span class="inline-code">proxyBaseUrl</span> is set.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"additionalProxyRequestHeaders"</span>: {
+  <span class="key">"X-Forwarded-By"</span>: <span class="str">"WireMock"</span>,
+  <span class="key">"Authorization"</span>: <span class="str">"Bearer real-token"</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">removeProxyRequestHeaders</span>
+            <span class="prop-type">array</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Headers to strip before proxying</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A list of header names to remove from the request before forwarding to the proxy target.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"removeProxyRequestHeaders"</span>: [<span class="str">"Cookie"</span>, <span class="str">"X-Internal-Token"</span>]</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── TRANSFORMERS ─── -->
+    <section id="response-transform">
+      <div class="section-header">
+        <h2>Response &mdash; Transformers</h2>
+        <span class="section-anchor">#response-transform</span>
+      </div>
+      <p class="section-desc">
+        Apply server-side transformations to the response before sending it to the client.
+        The most common transformer is <span class="inline-code">response-template</span>, which
+        supports Handlebars expressions.
+      </p>
+
+      <div class="prop-group">
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">transformers</span>
+            <span class="prop-type">array of strings</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">List of transformer extension names to apply</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An array of registered transformer names. Transformers are applied in order.
+              The built-in <span class="inline-code">response-template</span> transformer enables
+              Handlebars-based dynamic responses using request data, random values, dates, etc.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"transformers"</span>: [<span class="str">"response-template"</span>]</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">transformerParameters</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Parameters passed to transformers</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              A freeform object whose contents are passed to the active transformers.
+              Custom transformer extensions can read these parameters to modify their behavior.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"transformerParameters"</span>: {
+  <span class="key">"greeting"</span>: <span class="str">"Hello"</span>,
+  <span class="key">"includeTimestamp"</span>: <span class="kw">true</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="info-box tip">
+        <div class="icon">&#x1f4a1;</div>
+        <div>
+          <div class="label">Response Templating</div>
+          <div class="info-box-text">
+            With <span class="inline-code">"transformers": ["response-template"]</span>, you can use
+            Handlebars expressions in body and headers:
+            <span class="inline-code">{{request.path}}</span>,
+            <span class="inline-code">{{request.headers.Authorization}}</span>,
+            <span class="inline-code">{{randomValue type='UUID'}}</span>,
+            <span class="inline-code">{{now}}</span>,
+            <span class="inline-code">{{jsonPath request.body '$.name'}}</span>, and more.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── WEBHOOKS / POST-SERVE ACTIONS ─── -->
+    <section id="webhooks">
+      <div class="section-header">
+        <h2>Webhooks / Post-Serve Actions</h2>
+        <span class="section-anchor">#webhooks</span>
+      </div>
+      <p class="section-desc">
+        Trigger additional HTTP requests (webhooks or callbacks) after a stub has been matched
+        and the response has been sent. Requires the webhook extension.
+      </p>
+
+      <div class="prop-group">
+        <div class="prop-card">
+          <div class="prop-header" onclick="toggleProp(this)">
+            <span class="prop-name">postServeActions</span>
+            <span class="prop-type">object</span>
+            <span class="prop-req optional">Optional</span>
+            <span class="prop-summary">Actions to run after response is sent</span>
+            <span class="chevron">&#x25BE;</span>
+          </div>
+          <div class="prop-body">
+            <p class="prop-desc">
+              An object keyed by action name (e.g., <span class="inline-code">webhook</span>).
+              Each value configures the action. The webhook action makes an HTTP request to a
+              specified URL after the stub response is delivered.
+            </p>
+
+            <table class="param-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">url</td><td class="td-type">string</td><td class="td-desc">Target URL for the webhook callback</td></tr>
+                <tr><td class="td-name">method</td><td class="td-type">string</td><td class="td-desc">HTTP method (GET, POST, PUT, etc.)</td></tr>
+                <tr><td class="td-name">headers</td><td class="td-type">object</td><td class="td-desc">Headers to send with the webhook request</td></tr>
+                <tr><td class="td-name">body</td><td class="td-type">string</td><td class="td-desc">Body to send (supports templating)</td></tr>
+                <tr><td class="td-name">delay</td><td class="td-type">object</td><td class="td-desc">Delay before firing: <span class="inline-code">{"type":"fixed","milliseconds":1000}</span></td></tr>
+              </tbody>
+            </table>
+
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="key">"postServeActions"</span>: {
+  <span class="key">"webhook"</span>: {
+    <span class="key">"url"</span>: <span class="str">"https://hooks.example.com/notify"</span>,
+    <span class="key">"method"</span>: <span class="str">"POST"</span>,
+    <span class="key">"headers"</span>: {
+      <span class="key">"Content-Type"</span>: <span class="str">"application/json"</span>
+    },
+    <span class="key">"body"</span>: <span class="str">"{\"event\":\"stub-matched\",\"path\":\"{{request.path}}\"}"</span>,
+    <span class="key">"delay"</span>: {
+      <span class="key">"type"</span>: <span class="str">"fixed"</span>,
+      <span class="key">"milliseconds"</span>: <span class="num">500</span>
+    }
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+function toggleProp(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+// Sidebar active state
+const items = document.querySelectorAll('.sidebar-item');
+const sections = document.querySelectorAll('section');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  items.forEach(i => {
+    i.classList.toggle('active', i.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
