@@ -1,0 +1,7 @@
+diff --git a/node_modules/mgv-backoffice/dist/index.d.ts b/node_modules/mgv-backoffice/dist/index.d.ts
+index 336ce12..cba1843 100644
+--- a/node_modules/mgv-backoffice/dist/index.d.ts
++++ b/node_modules/mgv-backoffice/dist/index.d.ts
+@@ -1 +1 @@
+-export {}
++export * from './src/index';
