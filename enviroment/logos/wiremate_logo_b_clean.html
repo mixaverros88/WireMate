@@ -1,0 +1,39 @@
+
+<style>
+.wm-root { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 8px 0 16px; }
+.wm-logo { display: flex; align-items: center; gap: 18px; }
+.wm-divider { width: 1.5px; height: 52px; background: #34d399; opacity: 0.3; }
+.wm-text { display: flex; flex-direction: column; gap: 4px; }
+.wm-name { font-size: 32px; font-weight: 700; letter-spacing: -1px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; line-height: 1; color: var(--color-text-primary); }
+.wm-name span { color: #34d399; }
+.wm-sub { font-size: 12px; letter-spacing: 0.04em; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--color-text-secondary); }
+.previews { display: flex; gap: 12px; width: 100%; }
+.preview { flex: 1; border-radius: 14px; padding: 28px 24px; display: flex; justify-content: center; }
+.preview-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-family: -apple-system, sans-serif; text-align: center; color: var(--color-text-tertiary); margin-top: 8px; }
+.wm-logo-sm { display: flex; align-items: center; gap: 12px; }
+.wm-div-sm { width: 1px; height: 36px; opacity: 0.25; }
+.wm-name-sm { font-size: 20px; font-weight: 700; letter-spacing: -0.6px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; line-height: 1; }
+</style>
+
+<div class="wm-root">
+
+  <!-- Main logo (no background) -->
+  <div class="wm-logo">
+    <svg viewBox="0 0 88 68" width="88" height="68" xmlns="http://www.w3.org/2000/svg">
+      <line x1="4" y1="34" x2="16" y2="34" stroke="#34d399" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="4" cy="34" r="5.5" fill="#34d399"/>
+      <rect x="16" y="8" width="46" height="52" rx="10" fill="none" stroke="#34d399" stroke-width="3.2"/>
+      <circle cx="32" cy="34" r="7" fill="#34d399" opacity="0.2"/>
+      <circle cx="32" cy="34" r="3.2" fill="#34d399"/>
+      <rect x="62" y="20" width="22" height="9" rx="4" fill="#34d399"/>
+      <rect x="62" y="39" width="22" height="9" rx="4" fill="#34d399"/>
+    </svg>
+    <div class="wm-divider"></div>
+    <div class="wm-text">
+      <div class="wm-name">Wire<span>Mate</span></div>
+      <div class="wm-sub">Visual backoffice for WireMock</div>
+    </div>
+  </div>
+
+
+</div>

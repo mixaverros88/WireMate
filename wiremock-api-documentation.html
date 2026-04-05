@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WireMock Admin API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --bg-card: #13161f;
+    --bg-code: #0a0c11;
+    --border: #1e2233;
+    --border-bright: #2d3452;
+    --accent: #e8613a;
+    --accent2: #5b9cf6;
+    --accent3: #a78bfa;
+    --accent4: #34d399;
+    --text: #c8d0e8;
+    --text-dim: #6b7499;
+    --text-bright: #eef0f8;
+    --tag-get: #34d399;
+    --tag-post: #5b9cf6;
+    --tag-put: #f59e0b;
+    --tag-delete: #f87171;
+    --tag-head: #a78bfa;
+    --tag-bg-get: rgba(52,211,153,0.08);
+    --tag-bg-post: rgba(91,156,246,0.08);
+    --tag-bg-put: rgba(245,158,11,0.08);
+    --tag-bg-delete: rgba(248,113,113,0.08);
+    --tag-bg-head: rgba(167,139,250,0.08);
+    --sidebar-w: 260px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.3px;
+  }
+  .sidebar-logo .wordmark span { color: var(--accent); }
+  .sidebar-logo .version {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .sidebar-section {
+    padding: 20px 0 10px;
+  }
+  .sidebar-section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 20px 8px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-item:hover {
+    color: var(--text-bright);
+    background: rgba(255,255,255,0.03);
+    border-left-color: var(--border-bright);
+  }
+  .sidebar-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(232,97,58,0.05);
+  }
+  .sidebar-item .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  /* ─── MAIN CONTENT ────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 0 80px;
+  }
+
+  /* ─── HERO ────────────────────────────────── */
+  .hero {
+    padding: 60px 60px 48px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(232,97,58,0.04) 0%, transparent 60%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '__ADMIN';
+    position: absolute;
+    right: 40px; top: 30px;
+    font-size: 90px;
+    font-weight: 800;
+    font-family: 'Syne', sans-serif;
+    color: rgba(255,255,255,0.02);
+    letter-spacing: -4px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(232,97,58,0.3);
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--text-bright);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    color: var(--accent);
+    font-style: normal;
+  }
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 36px;
+  }
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+  .hero-stat .label {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ─── CONTENT SECTIONS ────────────────────── */
+  .content {
+    padding: 0 60px;
+  }
+
+  section {
+    padding: 48px 0 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+  }
+  .section-anchor {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    max-width: 700px;
+    line-height: 1.7;
+  }
+
+  /* ─── ENDPOINT CARDS ──────────────────────── */
+  .endpoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .endpoint-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .endpoint-card:hover {
+    border-color: var(--border-bright);
+  }
+
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    cursor: pointer;
+  }
+
+  .method-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    min-width: 58px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .method-get    { color: var(--tag-get);    background: var(--tag-bg-get);    border: 1px solid rgba(52,211,153,0.2);  }
+  .method-post   { color: var(--tag-post);   background: var(--tag-bg-post);   border: 1px solid rgba(91,156,246,0.2);  }
+  .method-put    { color: var(--tag-put);    background: var(--tag-bg-put);    border: 1px solid rgba(245,158,11,0.2);  }
+  .method-delete { color: var(--tag-delete); background: var(--tag-bg-delete); border: 1px solid rgba(248,113,113,0.2); }
+  .method-head   { color: var(--tag-head);   background: var(--tag-bg-head);   border: 1px solid rgba(167,139,250,0.2); }
+
+  .endpoint-path {
+    font-size: 13px;
+    color: var(--text-bright);
+    font-weight: 500;
+    flex: 1;
+  }
+  .endpoint-path .path-param {
+    color: var(--accent3);
+  }
+
+  .endpoint-summary {
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+
+  .endpoint-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+  }
+  .endpoint-body.open { display: block; }
+
+  .endpoint-desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    line-height: 1.7;
+  }
+
+  /* ─── CODE BLOCKS ─────────────────────────── */
+  .code-block {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-block-lang {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .copy-btn {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .copy-btn:hover { color: var(--text-bright); background: rgba(255,255,255,0.05); }
+  .code-block pre {
+    padding: 16px;
+    font-size: 11.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .kw  { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .key { color: #82aaff; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .url { color: var(--accent); }
+  .hdr { color: var(--accent2); }
+
+  /* ─── PARAMETERS TABLE ────────────────────── */
+  .param-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    margin-top: 18px;
+  }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .param-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .param-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: top;
+  }
+  .param-table tr:last-child td { border-bottom: none; }
+  .param-name {
+    color: var(--accent3);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .param-type {
+    color: var(--accent2);
+    font-size: 11px;
+  }
+  .param-req {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .param-opt {
+    color: var(--text-dim);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .param-desc { color: var(--text-dim); line-height: 1.6; }
+
+  /* ─── RESPONSE BADGES ─────────────────────── */
+  .response-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .response-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .response-badge .code { font-weight: 700; }
+  .r-200 { color: var(--tag-get); }
+  .r-201 { color: var(--tag-get); }
+  .r-204 { color: var(--tag-get); }
+  .r-400 { color: var(--tag-put); }
+  .r-404 { color: var(--tag-delete); }
+  .r-500 { color: var(--tag-delete); }
+  .r-desc { color: var(--text-dim); }
+
+  /* ─── INFO BOXES ──────────────────────────── */
+  .info-box {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 5px;
+    margin: 16px 0;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .info-box.note   { background: rgba(91,156,246,0.06); border: 1px solid rgba(91,156,246,0.15); }
+  .info-box.warn   { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); }
+  .info-box.tip    { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); }
+  .info-box .icon  { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .info-box.note .label  { color: var(--accent2); }
+  .info-box.warn .label  { color: var(--tag-put); }
+  .info-box.tip .label   { color: var(--tag-get); }
+  .info-box .label { font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .info-box-text { color: var(--text-dim); }
+
+  /* ─── OVERVIEW GRID ───────────────────────── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .overview-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .overview-card:hover { border-color: var(--border-bright); }
+  .overview-card .icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .overview-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+  }
+  .overview-card p {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .overview-card .count {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--accent);
+    border: 1px solid rgba(232,97,58,0.2);
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── SCROLLBAR ───────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+  /* ─── UTILITY ─────────────────────────────── */
+  .mt4 { margin-top: 4px; }
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--accent3);
+  }
+
+  .chevron {
+    margin-left: auto;
+    color: var(--text-dim);
+    font-size: 10px;
+    transition: transform 0.2s;
+  }
+  .endpoint-header.open .chevron { transform: rotate(180deg); }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Wire<span>Mock</span></div>
+    <div class="version">Admin API · v2.x / v3.x</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a class="sidebar-item active" href="#overview"><span class="dot"></span>Introduction</a>
+    <a class="sidebar-item" href="#base-url"><span class="dot"></span>Base URL &amp; Access</a>
+    <a class="sidebar-item" href="#conventions"><span class="dot"></span>Conventions</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Stub Mappings</div>
+    <a class="sidebar-item" href="#mappings"><span class="dot"></span>CRUD Operations</a>
+    <a class="sidebar-item" href="#mappings-find"><span class="dot"></span>Find by Metadata</a>
+    <a class="sidebar-item" href="#mappings-unmatched"><span class="dot"></span>Unmatched Stubs</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Request Journal</div>
+    <a class="sidebar-item" href="#requests"><span class="dot"></span>Logged Requests</a>
+    <a class="sidebar-item" href="#requests-find"><span class="dot"></span>Find &amp; Count</a>
+    <a class="sidebar-item" href="#near-misses"><span class="dot"></span>Near Misses</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">State &amp; Control</div>
+    <a class="sidebar-item" href="#scenarios"><span class="dot"></span>Scenarios</a>
+    <a class="sidebar-item" href="#recordings"><span class="dot"></span>Recordings</a>
+    <a class="sidebar-item" href="#settings"><span class="dot"></span>Global Settings</a>
+    <a class="sidebar-item" href="#system"><span class="dot"></span>System</a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─────────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">REST API Reference</div>
+    <h1>WireMock <em>Admin API</em></h1>
+    <p class="hero-desc">
+      Complete reference for the WireMock Admin REST API. Manage stub mappings, inspect logged requests,
+      control scenarios, trigger recordings, and configure the server — all over HTTP from any client.
+      All endpoints are prefixed with <span class="inline-code">/__admin/</span>.
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">30+</div>
+        <div class="label">Endpoints</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">6</div>
+        <div class="label">Resource Groups</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">OpenAPI</div>
+        <div class="label">Spec Format</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ─── OVERVIEW ─── -->
+    <section id="overview">
+      <div class="section-header">
+        <h2>Overview</h2>
+        <span class="section-anchor">#overview</span>
+      </div>
+      <p class="section-desc">
+        The WireMock Admin API is a RESTful HTTP interface that lets you control a running WireMock instance
+        without restarting it. It supports the full lifecycle of stub management, request verification,
+        stateful scenario control, and server configuration.
+        The API follows OpenAPI 3.0 and an interactive Swagger UI is bundled with every WireMock instance.
+      </p>
+
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="icon">🗂️</div>
+          <h3>Stub Mappings</h3>
+          <p>Create, read, update, and delete stubs that define how WireMock responds to incoming requests.</p>
+          <div class="count">12 endpoints</div>
+        </div>
+        <div class="overview-card">
+          <div class="icon">📋</div>
+          <h3>Request Journal</h3>
+          <p>Query, count, and remove the log of every request WireMock has received since startup.</p>
+          <div class="count">9 endpoints</div>
+        </div>
+        <div class="overview-card">
+          <div class="icon">🎬</div>
+          <h3>Scenarios</h3>
+          <p>Drive stateful behaviour by resetting or directly setting scenario states via the API.</p>
+          <div class="count">3 endpoints</div>
+        </div>
+        <div class="overview-card">
+          <div class="icon">⏺️</div>
+          <h3>Recordings</h3>
+          <p>Start and stop recording real HTTP traffic as replayable stubs. Take snapshots on demand.</p>
+          <div class="count">4 endpoints</div>
+        </div>
+        <div class="overview-card">
+          <div class="icon">⚙️</div>
+          <h3>Global Settings</h3>
+          <p>Read and modify server-wide settings like delay, proxy config, and request journal capacity.</p>
+          <div class="count">2 endpoints</div>
+        </div>
+        <div class="overview-card">
+          <div class="icon">🔋</div>
+          <h3>System</h3>
+          <p>Health check, version info, full reset, and graceful shutdown — all via simple POST/GET.</p>
+          <div class="count">4 endpoints</div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="icon">💡</div>
+        <div>
+          <div class="label">Interactive Docs</div>
+          <div class="info-box-text">
+            Every running WireMock instance hosts a Swagger UI at
+            <span class="inline-code">http://localhost:8080/__admin/docs/</span>
+            and the raw OpenAPI spec at
+            <span class="inline-code">/__admin/docs/swagger</span>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── BASE URL ─── -->
+    <section id="base-url">
+      <div class="section-header">
+        <h2>Base URL &amp; Access</h2>
+        <span class="section-anchor">#base-url</span>
+      </div>
+      <p class="section-desc">
+        WireMock defaults to port <strong style="color:var(--text-bright)">8080</strong>. Every Admin API endpoint is under
+        the <span class="inline-code">/__admin/</span> path prefix.
+      </p>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-lang">Base URL</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre>http://&lt;host&gt;:&lt;port&gt;/__admin/</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-lang">Quick Sanity Check</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># Verify WireMock is running and list all stubs</span>
+curl http://localhost:8080/__admin/mappings
+
+<span class="cmt"># Check health</span>
+curl http://localhost:8080/__admin/health
+
+<span class="cmt"># View Swagger UI</span>
+open http://localhost:8080/__admin/docs/</pre>
+      </div>
+
+      <div class="info-box note">
+        <div class="icon">ℹ️</div>
+        <div>
+          <div class="label">Security Note</div>
+          <div class="info-box-text">
+            The Admin API is unauthenticated by default. In production-like environments consider
+            using <span class="inline-code">--admin-api-require-https-client-cert</span> or fronting
+            WireMock with a reverse proxy to restrict access.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── CONVENTIONS ─── -->
+    <section id="conventions">
+      <div class="section-header">
+        <h2>Conventions</h2>
+        <span class="section-anchor">#conventions</span>
+      </div>
+      <p class="section-desc">
+        All request bodies are JSON. All responses are JSON. The
+        <span class="inline-code">Content-Type: application/json</span> header must be sent with any
+        body. Path parameters are shown as <span class="inline-code">{id}</span>. UUIDs are used as
+        resource identifiers throughout.
+      </p>
+
+      <div class="param-label">HTTP Method Semantics</div>
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Method</th><th>Semantics</th><th>Idempotent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method-tag method-get">GET</span></td>
+            <td class="param-desc">Retrieve resource(s)</td>
+            <td class="param-type">Yes</td>
+          </tr>
+          <tr>
+            <td><span class="method-tag method-post">POST</span></td>
+            <td class="param-desc">Create new resource or execute action</td>
+            <td class="param-type">No</td>
+          </tr>
+          <tr>
+            <td><span class="method-tag method-put">PUT</span></td>
+            <td class="param-desc">Replace existing resource by ID</td>
+            <td class="param-type">Yes</td>
+          </tr>
+          <tr>
+            <td><span class="method-tag method-delete">DELETE</span></td>
+            <td class="param-desc">Remove resource or collection</td>
+            <td class="param-type">Yes</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ─── STUB MAPPINGS ─── -->
+    <section id="mappings">
+      <div class="section-header">
+        <h2>Stub Mappings — CRUD</h2>
+        <span class="section-anchor">#mappings</span>
+      </div>
+      <p class="section-desc">
+        Stub mappings are the core building block of WireMock. Each mapping pairs a
+        <strong style="color:var(--text-bright)">request matcher</strong> with a
+        <strong style="color:var(--text-bright)">response definition</strong>.
+      </p>
+
+      <div class="endpoint-list">
+
+        <!-- GET /mappings -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/mappings</span>
+            <span class="endpoint-summary">Get all stub mappings</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns all currently registered stub mappings. Supports pagination via
+              <span class="inline-code">limit</span> and <span class="inline-code">offset</span> query parameters.
+              Useful as a quick health check — if WireMock is up, you'll get a valid JSON response.
+            </p>
+            <div class="param-label">Query Parameters</div>
+            <table class="param-table">
+              <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">limit</td>
+                  <td class="param-type">integer</td>
+                  <td class="param-opt">Optional</td>
+                  <td class="param-desc">Maximum number of mappings to return</td>
+                </tr>
+                <tr>
+                  <td class="param-name">offset</td>
+                  <td class="param-type">integer</td>
+                  <td class="param-opt">Optional</td>
+                  <td class="param-desc">Offset for pagination (zero-based)</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/mappings</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{
+  <span class="key">"mappings"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"e5e3a42e-f00f-4a2c-8a6b-1c2d3e4f5a6b"</span>,
+      <span class="key">"priority"</span>: <span class="num">1</span>,
+      <span class="key">"request"</span>: {
+        <span class="key">"method"</span>: <span class="str">"GET"</span>,
+        <span class="key">"url"</span>: <span class="str">"/api/users"</span>
+      },
+      <span class="key">"response"</span>: {
+        <span class="key">"status"</span>: <span class="num">200</span>,
+        <span class="key">"body"</span>: <span class="str">"[{\"id\":1,\"name\":\"Alice\"}]"</span>,
+        <span class="key">"headers"</span>: { <span class="key">"Content-Type"</span>: <span class="str">"application/json"</span> }
+      }
+    }
+  ],
+  <span class="key">"meta"</span>: { <span class="key">"total"</span>: <span class="num">1</span> }
+}</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">Paginated list of stub mappings</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POST /mappings -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/mappings</span>
+            <span class="endpoint-summary">Create a new stub mapping</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Creates a new stub mapping. Returns the created mapping with its server-assigned UUID.
+              A single mapping object or an array of mappings can be submitted.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL — Simple GET stub</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"request"</span>: {
+      <span class="key">"method"</span>: <span class="str">"GET"</span>,
+      <span class="key">"url"</span>: <span class="str">"/api/users"</span>,
+      <span class="key">"headers"</span>: {
+        <span class="key">"Content-Type"</span>: { <span class="key">"equalTo"</span>: <span class="str">"application/json"</span> }
+      }
+    },
+    <span class="key">"response"</span>: {
+      <span class="key">"status"</span>: <span class="num">200</span>,
+      <span class="key">"body"</span>: <span class="str">"[{\"id\":1,\"name\":\"Alice\"}]"</span>,
+      <span class="key">"headers"</span>: { <span class="key">"Content-Type"</span>: <span class="str">"application/json"</span> }
+    }
+  }'</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL — With query params &amp; priority</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"priority"</span>: <span class="num">5</span>,
+    <span class="key">"request"</span>: {
+      <span class="key">"method"</span>: <span class="str">"GET"</span>,
+      <span class="key">"urlPath"</span>: <span class="str">"/greet"</span>,
+      <span class="key">"queryParameters"</span>: {
+        <span class="key">"name"</span>: { <span class="key">"equalTo"</span>: <span class="str">"Alice"</span> }
+      }
+    },
+    <span class="key">"response"</span>: {
+      <span class="key">"status"</span>: <span class="num">200</span>,
+      <span class="key">"body"</span>: <span class="str">"Hello, Alice!"</span>
+    }
+  }'</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-201">201</span><span class="r-desc">Stub created — returns the mapping with ID</span></div>
+              <div class="response-badge"><span class="code r-400">400</span><span class="r-desc">Invalid request body</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE /mappings -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-delete">DELETE</span>
+            <span class="endpoint-path">/__admin/mappings</span>
+            <span class="endpoint-summary">Delete all stub mappings</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Removes all currently registered stub mappings. Equivalent to
+              <span class="inline-code">POST /__admin/mappings/reset</span>.
+              Persistent stubs loaded from disk on startup are also removed from the in-memory registry
+              but not deleted from disk.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X DELETE http://localhost:8080/__admin/mappings</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">All mappings removed</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POST /mappings/reset -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/mappings/reset</span>
+            <span class="endpoint-summary">Reset to default stub mappings</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Resets all stub mappings to their startup defaults, reloading stubs from the mappings directory on disk.
+              In-memory stubs added via the API since startup are discarded.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings/reset</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">Reset successful</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POST /mappings/save -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/mappings/save</span>
+            <span class="endpoint-summary">Persist all stub mappings to disk</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Saves all currently registered stub mappings to the <span class="inline-code">mappings/</span>
+              directory as JSON files, making them persistent across server restarts.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings/save</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- GET /mappings/{id} -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/mappings/<span class="path-param">{id}</span></span>
+            <span class="endpoint-summary">Get a single stub mapping</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Retrieves a specific stub mapping by its UUID.
+            </p>
+            <div class="param-label">Path Parameters</div>
+            <table class="param-table">
+              <thead><tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="param-name">id</td>
+                  <td class="param-type">string (UUID)</td>
+                  <td class="param-req">Required</td>
+                  <td class="param-desc">The UUID of the stub mapping</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/mappings/e5e3a42e-f00f-4a2c-8a6b-1c2d3e4f5a6b</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">The mapping object</span></div>
+              <div class="response-badge"><span class="code r-404">404</span><span class="r-desc">Mapping not found</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PUT /mappings/{id} -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-put">PUT</span>
+            <span class="endpoint-path">/__admin/mappings/<span class="path-param">{id}</span></span>
+            <span class="endpoint-summary">Update a stub mapping</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Replaces an existing stub mapping by ID with the provided definition.
+              The full mapping object must be supplied — this is a full replacement, not a patch.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X PUT http://localhost:8080/__admin/mappings/e5e3a42e-f00f-4a2c-8a6b-1c2d3e4f5a6b \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"request"</span>: { <span class="key">"method"</span>: <span class="str">"GET"</span>, <span class="key">"url"</span>: <span class="str">"/api/users"</span> },
+    <span class="key">"response"</span>: { <span class="key">"status"</span>: <span class="num">200</span>, <span class="key">"body"</span>: <span class="str">"updated"</span> }
+  }'</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">Updated mapping returned</span></div>
+              <div class="response-badge"><span class="code r-404">404</span><span class="r-desc">Mapping not found</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE /mappings/{id} -->
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-delete">DELETE</span>
+            <span class="endpoint-path">/__admin/mappings/<span class="path-param">{id}</span></span>
+            <span class="endpoint-summary">Delete a stub mapping</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Removes a single stub mapping by its UUID.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X DELETE http://localhost:8080/__admin/mappings/e5e3a42e-f00f-4a2c-8a6b-1c2d3e4f5a6b</pre>
+            </div>
+            <div class="param-label">Responses</div>
+            <div class="response-list">
+              <div class="response-badge"><span class="code r-200">200</span><span class="r-desc">Deleted</span></div>
+              <div class="response-badge"><span class="code r-404">404</span><span class="r-desc">Not found</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── FIND BY METADATA ─── -->
+    <section id="mappings-find">
+      <div class="section-header">
+        <h2>Stub Mappings — Metadata Queries</h2>
+        <span class="section-anchor">#mappings-find</span>
+      </div>
+      <p class="section-desc">
+        Stubs can be tagged with arbitrary metadata. These endpoints let you find or bulk-delete
+        stubs by matching on that metadata.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/mappings/find-by-metadata</span>
+            <span class="endpoint-summary">Find stubs matching metadata criteria</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns all stubs whose <span class="inline-code">metadata</span> field satisfies the provided
+              matcher expression. Supports all standard WireMock matchers
+              (<span class="inline-code">equalTo</span>, <span class="inline-code">contains</span>,
+              <span class="inline-code">matches</span>, etc.).
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings/find-by-metadata \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"matchesJsonPath"</span>: <span class="str">"$[?(@.team == 'backend')]"</span>
+  }'</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/mappings/remove-by-metadata</span>
+            <span class="endpoint-summary">Remove stubs matching metadata criteria</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Deletes all stubs whose metadata satisfies the provided matcher. Useful for cleanup
+              after a test suite that tags its stubs with a test-run ID.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/mappings/remove-by-metadata \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{ <span class="key">"equalTo"</span>: { <span class="key">"runId"</span>: <span class="str">"test-run-42"</span> } }'</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── UNMATCHED STUBS ─── -->
+    <section id="mappings-unmatched">
+      <div class="section-header">
+        <h2>Stub Mappings — Unmatched</h2>
+        <span class="section-anchor">#mappings-unmatched</span>
+      </div>
+      <p class="section-desc">
+        Identify stubs that have never been triggered. Useful for dead-code detection in your mock layer.
+      </p>
+
+      <div class="endpoint-list">
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/mappings/unmatched</span>
+            <span class="endpoint-summary">Get stubs that matched no requests</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns all stub mappings that have not matched any incoming request.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/mappings/unmatched</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-delete">DELETE</span>
+            <span class="endpoint-path">/__admin/mappings/unmatched</span>
+            <span class="endpoint-summary">Remove stubs that matched no requests</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Deletes all stubs that have not yet matched any request.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X DELETE http://localhost:8080/__admin/mappings/unmatched</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── REQUEST JOURNAL ─── -->
+    <section id="requests">
+      <div class="section-header">
+        <h2>Request Journal</h2>
+        <span class="section-anchor">#requests</span>
+      </div>
+      <p class="section-desc">
+        WireMock records every incoming request in an in-memory journal. These endpoints expose that
+        journal for inspection and verification in test scenarios.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/requests</span>
+            <span class="endpoint-summary">Get all logged requests</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns all requests recorded in the journal, newest first. Supports
+            <span class="inline-code">limit</span> and <span class="inline-code">since</span> query parameters.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/requests</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{
+  <span class="key">"requests"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"a1b2c3d4-..."</span>,
+      <span class="key">"request"</span>: {
+        <span class="key">"url"</span>: <span class="str">"/api/users"</span>,
+        <span class="key">"method"</span>: <span class="str">"GET"</span>,
+        <span class="key">"headers"</span>: { <span class="key">"Accept"</span>: <span class="str">"application/json"</span> }
+      },
+      <span class="key">"responseDefinition"</span>: { <span class="key">"status"</span>: <span class="num">200</span> },
+      <span class="key">"wasMatched"</span>: <span class="kw">true</span>
+    }
+  ],
+  <span class="key">"meta"</span>: { <span class="key">"total"</span>: <span class="num">1</span> }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-delete">DELETE</span>
+            <span class="endpoint-path">/__admin/requests</span>
+            <span class="endpoint-summary">Clear the request journal</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Wipes the entire request journal. Call this at the start of each test to ensure a clean slate.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X DELETE http://localhost:8080/__admin/requests</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/requests/<span class="path-param">{id}</span></span>
+            <span class="endpoint-summary">Get a specific logged request</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Retrieves a single logged request by UUID.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/requests/a1b2c3d4-1234-5678-abcd-000000000001</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-delete">DELETE</span>
+            <span class="endpoint-path">/__admin/requests/<span class="path-param">{id}</span></span>
+            <span class="endpoint-summary">Delete a specific logged request</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Removes a single request from the journal by UUID.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X DELETE http://localhost:8080/__admin/requests/a1b2c3d4-1234-5678-abcd-000000000001</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/requests/unmatched</span>
+            <span class="endpoint-summary">Get unmatched incoming requests</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns all requests that arrived but did not match any stub.
+              These are the requests that caused WireMock to return a 404.
+              Useful for debugging gaps in your stub configuration.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/requests/unmatched</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FIND & COUNT ─── -->
+    <section id="requests-find">
+      <div class="section-header">
+        <h2>Request Journal — Find &amp; Count</h2>
+        <span class="section-anchor">#requests-find</span>
+      </div>
+      <p class="section-desc">
+        Query the request journal using the same matcher DSL used in stub definitions.
+        Supports all URL, header, body, and query parameter matchers.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/requests/find</span>
+            <span class="endpoint-summary">Find requests matching a pattern</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns all requests in the journal that satisfy the given request pattern.
+              The pattern uses the same matcher format as stub request definitions.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/requests/find \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"method"</span>: <span class="str">"POST"</span>,
+    <span class="key">"urlPath"</span>: <span class="str">"/api/orders"</span>,
+    <span class="key">"bodyPatterns"</span>: [
+      { <span class="key">"contains"</span>: <span class="str">"\"status\":\"NEW\""</span> }
+    ]
+  }'</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/requests/count</span>
+            <span class="endpoint-summary">Count requests matching a pattern</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns the count of requests that match the given pattern. Same request body shape
+              as <span class="inline-code">POST /__admin/requests/find</span>.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/requests/count \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{ <span class="key">"method"</span>: <span class="str">"GET"</span>, <span class="key">"url"</span>: <span class="str">"/api/ping"</span> }'</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{ <span class="key">"count"</span>: <span class="num">3</span> }</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/requests/remove</span>
+            <span class="endpoint-summary">Remove requests matching a pattern</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Deletes from the journal all requests that match the given pattern.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/requests/remove \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{ <span class="key">"method"</span>: <span class="str">"GET"</span>, <span class="key">"url"</span>: <span class="str">"/api/health"</span> }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── NEAR MISSES ─── -->
+    <section id="near-misses">
+      <div class="section-header">
+        <h2>Near Misses</h2>
+        <span class="section-anchor">#near-misses</span>
+      </div>
+      <p class="section-desc">
+        Near misses are stubs that <em>almost</em> matched a request. WireMock scores each unmatched
+        request against every stub and returns the closest matches, making it easy to diagnose
+        misconfigured matchers.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/requests/unmatched/near-misses</span>
+            <span class="endpoint-summary">Near misses for unmatched requests</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns near-miss analysis for every request that wasn't matched by a stub.
+              Each entry shows which stub came closest and why it didn't match.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/requests/unmatched/near-misses</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/near-misses/request</span>
+            <span class="endpoint-summary">Near misses for a specific request</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Given a request object in the body, returns the stub mappings that most closely matched it.
+              Useful for debugging without needing to fire a real HTTP request.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/near-misses/request \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"method"</span>: <span class="str">"DELETE"</span>,
+    <span class="key">"url"</span>: <span class="str">"/api/users/42"</span>,
+    <span class="key">"headers"</span>: { <span class="key">"Authorization"</span>: <span class="str">"Bearer token123"</span> }
+  }'</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/near-misses/request-pattern</span>
+            <span class="endpoint-summary">Near misses for a request pattern</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Given a request pattern (matcher), returns the logged requests from the journal that
+              most closely match it. Helps verify that your stub's matcher covers the requests you expect.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/near-misses/request-pattern \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"method"</span>: <span class="str">"POST"</span>,
+    <span class="key">"urlPathPattern"</span>: <span class="str">"/api/users/[0-9]+"</span>
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SCENARIOS ─── -->
+    <section id="scenarios">
+      <div class="section-header">
+        <h2>Scenarios</h2>
+        <span class="section-anchor">#scenarios</span>
+      </div>
+      <p class="section-desc">
+        Scenarios enable stateful behaviour. A scenario is a named state machine; stubs can be
+        conditional on the current scenario state and can transition it to a new state on match.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/scenarios</span>
+            <span class="endpoint-summary">Get all scenarios and their current state</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns all defined scenarios with their current state.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/scenarios</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{
+  <span class="key">"scenarios"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"order-flow"</span>,
+      <span class="key">"name"</span>: <span class="str">"order-flow"</span>,
+      <span class="key">"state"</span>: <span class="str">"Started"</span>,
+      <span class="key">"possibleStates"</span>: [<span class="str">"Started"</span>, <span class="str">"order-placed"</span>, <span class="str">"order-confirmed"</span>]
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/scenarios/reset</span>
+            <span class="endpoint-summary">Reset all scenarios to initial state</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Resets all scenarios back to <span class="inline-code">Started</span> state.
+              Should be called between test cases to ensure a consistent starting point.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/scenarios/reset</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-put">PUT</span>
+            <span class="endpoint-path">/__admin/scenarios/<span class="path-param">{name}</span>/state</span>
+            <span class="endpoint-summary">Set the state of a specific scenario</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Forces a specific scenario into a given state without requiring HTTP traffic to trigger the transition.
+              Useful for setting up a test mid-flow.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X PUT http://localhost:8080/__admin/scenarios/order-flow/state \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{ <span class="key">"state"</span>: <span class="str">"order-placed"</span> }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── RECORDINGS ─── -->
+    <section id="recordings">
+      <div class="section-header">
+        <h2>Recordings</h2>
+        <span class="section-anchor">#recordings</span>
+      </div>
+      <p class="section-desc">
+        WireMock can proxy and record real API traffic, saving it as replayable stub mappings.
+        This is the fastest way to bootstrap a mock from an existing service.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/recordings/start</span>
+            <span class="endpoint-summary">Start recording</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Starts recording incoming proxied requests as stubs.
+              The request body configures the target URL and recording options.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/recordings/start \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"targetBaseUrl"</span>: <span class="str">"https://api.real-service.com"</span>,
+    <span class="key">"filters"</span>: {
+      <span class="key">"urlPathPattern"</span>: <span class="str">"/api/.*"</span>
+    },
+    <span class="key">"captureHeaders"</span>: {
+      <span class="key">"Accept"</span>: { <span class="key">"caseInsensitive"</span>: <span class="kw">true</span> }
+    }
+  }'</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/recordings/stop</span>
+            <span class="endpoint-summary">Stop recording</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Stops recording and returns all stub mappings that were generated during the session.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/recordings/stop</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/recordings/status</span>
+            <span class="endpoint-summary">Get recording status</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns whether recording is currently active.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/recordings/status</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{ <span class="key">"status"</span>: <span class="str">"NeverStarted"</span> }
+<span class="cmt">// Possible values: NeverStarted | Recording | Stopped</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/recordings/snapshot</span>
+            <span class="endpoint-summary">Take a recording snapshot</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Generates stub mappings from the requests recorded since the last snapshot (or since recording started).
+              Does not stop the recording session — allows incremental snapshotting.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/recordings/snapshot</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SETTINGS ─── -->
+    <section id="settings">
+      <div class="section-header">
+        <h2>Global Settings</h2>
+        <span class="section-anchor">#settings</span>
+      </div>
+      <p class="section-desc">
+        Read and modify server-wide configuration at runtime without restarting.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/settings</span>
+            <span class="endpoint-summary">Get current global settings</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns the current global configuration of the WireMock instance.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/settings</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{
+  <span class="key">"fixedDelay"</span>: <span class="num">0</span>,
+  <span class="key">"delayDistribution"</span>: <span class="kw">null</span>,
+  <span class="key">"extendedCaptureHeadersPatterns"</span>: [],
+  <span class="key">"webhookMaxThreads"</span>: <span class="num">10</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/settings</span>
+            <span class="endpoint-summary">Update global settings</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Updates global settings. Only the provided fields are changed.
+              Useful for adding a global response delay to simulate latency.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL — Add 200ms global delay</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/settings \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{ <span class="key">"fixedDelay"</span>: <span class="num">200</span> }'</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL — Random delay distribution</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/settings \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="key">"delayDistribution"</span>: {
+      <span class="key">"type"</span>: <span class="str">"uniform"</span>,
+      <span class="key">"lower"</span>: <span class="num">50</span>,
+      <span class="key">"upper"</span>: <span class="num">300</span>
+    }
+  }'</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SYSTEM ─── -->
+    <section id="system">
+      <div class="section-header">
+        <h2>System</h2>
+        <span class="section-anchor">#system</span>
+      </div>
+      <p class="section-desc">
+        Lifecycle and status endpoints for the WireMock server process itself.
+      </p>
+
+      <div class="endpoint-list">
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/health</span>
+            <span class="endpoint-summary">Health check</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Returns HTTP 200 with body <span class="inline-code">{"status":"healthy"}</span> if the server is running
+              and processing requests normally. Returns 503 if unhealthy.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/health</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{ <span class="key">"status"</span>: <span class="str">"healthy"</span> }</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-get">GET</span>
+            <span class="endpoint-path">/__admin/version</span>
+            <span class="endpoint-summary">Get WireMock version</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">Returns the version string of the running WireMock instance.</p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl http://localhost:8080/__admin/version</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>{ <span class="key">"version"</span>: <span class="str">"3.5.4"</span> }</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/reset</span>
+            <span class="endpoint-summary">Full reset — mappings + journal</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Resets all stub mappings to their startup defaults AND clears the request journal in one call.
+              The most complete teardown available short of restarting the process.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/reset</pre>
+            </div>
+            <div class="info-box warn">
+              <div class="icon">⚠️</div>
+              <div>
+                <div class="label">Destructive</div>
+                <div class="info-box-text">
+                  This endpoint erases all in-memory stubs and all recorded requests.
+                  Stubs saved to disk via <span class="inline-code">/__admin/mappings/save</span> are not deleted
+                  and will be reloaded on the next reset.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method-tag method-post">POST</span>
+            <span class="endpoint-path">/__admin/shutdown</span>
+            <span class="endpoint-summary">Shut down the WireMock server</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">
+              Gracefully shuts down the WireMock process. Send an empty body or no body.
+              The server will not respond to further requests after this call.
+            </p>
+            <div class="code-block">
+              <div class="code-block-header"><span class="code-block-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>curl -X POST http://localhost:8080/__admin/shutdown</pre>
+            </div>
+            <div class="info-box warn">
+              <div class="icon">⚠️</div>
+              <div>
+                <div class="label">Irreversible</div>
+                <div class="info-box-text">
+                  This terminates the WireMock process. It cannot be used in embedded mode
+                  (JUnit integration) — use <span class="inline-code">wireMockServer.stop()</span> instead.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+function toggleEndpoint(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+// Sidebar active state
+const items = document.querySelectorAll('.sidebar-item');
+const sections = document.querySelectorAll('section');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  items.forEach(i => {
+    i.classList.toggle('active', i.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>

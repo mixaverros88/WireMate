@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import "mgv-backoffice/dist/style.css";
+
+/*
+  Give native <select> elements breathing room for the native chevron.
+  The rule is wrapped in @layer base and uses :where(), which gives it
+  specificity 0 — any class-scoped rule from mgv-backoffice (or elsewhere)
+  wins, so the padding can't bleed into third-party component selects that
+  already size themselves precisely. App-owned <select>s, which have no
+  conflicting rule, still get the chevron clearance.
+*/
+@layer base {
+  :where(select) {
+    padding-right: 2rem;
+  }
+
+  /*
+    Make every clickable thing show the hand cursor by default. Covers
+    native <button>, ARIA role="button", anchors, <summary>, form labels,
+    clickable inputs (submit/button/reset/checkbox/radio), and — via the
+    SVG selector — any icon nested inside one of those. Icons get
+    `pointer-events: none` so clicks pass through to the parent button,
+    which keeps click targets (and hover states) on the actual control
+    rather than the decoration.
+
+    Disabled controls opt out explicitly so users get the correct affordance.
+  */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  summary,
+  label[for],
+  input[type="submit"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  /*
+    Icons inside clickable elements shouldn't swallow the click or change
+    the cursor — let the parent decide both.
+  */
+  button svg,
+  [role="button"] svg,
+  a svg,
+  summary svg,
+  label svg {
+    pointer-events: none;
+  }
+}
