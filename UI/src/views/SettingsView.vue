@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { BaseButton, BaseButtonEnum, BaseSpinner, BaseToast, BaseToastEnum, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseButton, BaseButtonEnum, BaseSpinner, BaseToast, BaseToastEnum, BaseToolbarButton, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import {
   ArrowPathIcon,
   HeartIcon,
@@ -101,19 +101,16 @@ function formatUptime(seconds: number): string {
         <!-- Refresh — kept visually identical to NotificationsView's
              refresh button so the page-level affordance is consistent
              across views. -->
-        <button
-          @click="refreshAll"
-          type="button"
+        <BaseToolbarButton
+          label="Refresh"
           :disabled="loadingHealth"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="isDark
-            ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
-            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
           title="Refresh"
+          @click="refreshAll"
         >
-          <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': loadingHealth }" />
-          <span>Refresh</span>
-        </button>
+          <template #icon="{ iconClass }">
+            <ArrowPathIcon :class="[iconClass, { 'animate-spin': loadingHealth }]" />
+          </template>
+        </BaseToolbarButton>
       </div>
 
       <!-- ─── Server Health ───────────────────────────────── -->

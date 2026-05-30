@@ -5,7 +5,7 @@ import {
   ArrowPathIcon,
   TrashIcon,
 } from '@heroicons/vue/24/outline'
-import { BaseConfirmModal, BaseToast, BaseToastEnum, Pagination, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseConfirmModal, BaseToast, BaseToastEnum, BaseToolbarButton, Pagination, fmtDate, sanitizeHtml, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import {
   fetchNotificationsPage,
   deleteNotification,
@@ -13,7 +13,6 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '../services/notificationService'
 import type { Notification } from '../types/notification'
-import { sanitizeNotificationHtml } from '../utils/sanitizeNotificationHtml'
 
 const { isDark } = useTheme()
 const t = useThemeClasses()
@@ -45,10 +44,6 @@ const deleteNotificationMessage = computed(() => {
   if (!n) return ''
   return `Notification #${n.id} will be permanently removed. This action cannot be undone.`
 })
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString()
-}
 
 async function load() {
   loading.value = true
@@ -177,35 +172,30 @@ onMounted(load)
       <div class="flex items-center gap-2">
         <!-- Refresh is now a labelled button rather than a bare icon, matching
              the affordance of the new Delete All button next to it. -->
-        <button
-          @click="refresh"
-          type="button"
+        <BaseToolbarButton
+          label="Refresh"
           :disabled="loading"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="isDark
-            ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
-            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
           title="Refresh"
+          @click="refresh"
         >
-          <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': loading }" />
-          <span>Refresh</span>
-        </button>
+          <template #icon="{ iconClass }">
+            <ArrowPathIcon :class="[iconClass, { 'animate-spin': loading }]" />
+          </template>
+        </BaseToolbarButton>
         <!-- Delete-all wipes every notification via DELETE
              /backoffice/notifications. Disabled while there's nothing to
              delete or a delete is already in flight. -->
-        <button
-          @click="openDeleteAllModal"
-          type="button"
+        <BaseToolbarButton
+          variant="danger"
+          label="Delete All"
           :disabled="isDeletingAll || (notifications.length === 0 && total === 0)"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="isDark
-            ? 'bg-red-600/90 text-white border-red-700 hover:bg-red-600'
-            : 'bg-red-600 text-white border-red-600 hover:bg-red-700'"
           title="Delete all notifications"
+          @click="openDeleteAllModal"
         >
-          <TrashIcon class="w-4 h-4" :class="{ 'animate-pulse': isDeletingAll }" />
-          <span>Delete All</span>
-        </button>
+          <template #icon="{ iconClass }">
+            <TrashIcon :class="[iconClass, { 'animate-pulse': isDeletingAll }]" />
+          </template>
+        </BaseToolbarButton>
       </div>
     </div>
 
@@ -248,22 +238,21 @@ onMounted(load)
               <div class="min-w-0">
                 <!--
                   notification.name may contain mixed HTML + text from the
-                  backend. We pass it through `sanitizeNotificationHtml`
-                  (allow-list of safe tags, strips every attribute except
-                  `a[href|title]`, blocks javascript: hrefs, force
-                  rel=noopener target=_blank on anchors) before v-html
-                  renders it. The sanitiser is defence-in-depth on top of
-                  the trusted-source assumption; if the backend later
-                  starts forwarding user content, we already won't render
-                  scripts or onclick handlers.
+                  backend. We pass it through `sanitizeHtml` (allow-list of
+                  safe tags, strips every attribute except `a[href|title]`,
+                  blocks javascript: hrefs, force rel=noopener target=_blank
+                  on anchors) before v-html renders it. The sanitiser is
+                  defence-in-depth on top of the trusted-source assumption;
+                  if the backend later starts forwarding user content, we
+                  already won't render scripts or onclick handlers.
                 -->
                 <div
-                  v-html="sanitizeNotificationHtml(notification.name)"
+                  v-html="sanitizeHtml(notification.name)"
                   class="notification-body text-sm font-medium break-words"
                   :class="t.primaryTextSoft"
                 ></div>
                 <p class="text-xs mt-1" :class="t.dimText">
-                  Created: {{ formatDate(notification.createdAt) }}
+                  Created: {{ fmtDate(notification.createdAt) }}
                 </p>
               </div>
             </div>

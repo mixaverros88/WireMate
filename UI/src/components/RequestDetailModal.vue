@@ -58,7 +58,7 @@
                 {{ request.wasMatched ? 'Matched' : 'Unmatched' }}
               </span>
               <span :class="t.mutedText" class="text-sm">
-                {{ formatDate(request.request.loggedDateString || request.request.loggedDate) }}
+                {{ fmtDate(request.request.loggedDateString || request.request.loggedDate) }}
               </span>
             </div>
 
@@ -315,7 +315,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { methodBadgeSolid, statusBadgeSolid, useEscapeKey, useTheme, useThemeClasses } from 'mgv-backoffice'
+import { fmtDate, methodBadgeSolid, statusBadgeSolid, useEscapeKey, useTheme, useThemeClasses } from 'mgv-backoffice'
 import type { LoggedRequest, QueryParam } from '../types/requestJournal'
 
 interface Props {
@@ -395,14 +395,6 @@ const hasTiming = computed(() => {
     || t.addedDelay !== undefined
   )
 })
-
-function formatDate(dateStr: string | number): string {
-  try {
-    return new Date(dateStr).toLocaleString()
-  } catch {
-    return String(dateStr)
-  }
-}
 
 function formatJson(content: string): string {
   try {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { BaseConfirmModal, BaseToast, BaseToastEnum, useTheme, useToast } from 'mgv-backoffice'
+import { BaseActionButton, BaseConfirmModal, BaseToast, BaseToastEnum, useTheme, useToast } from 'mgv-backoffice'
 import {
   PencilSquareIcon,
   ClipboardDocumentListIcon,
@@ -108,34 +108,34 @@ function cancelDelete() {
   <div>
     <div class="flex items-center flex-wrap gap-2 rounded-xl border p-3"
       :class="isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200 shadow-sm'">
-      <button
+      <BaseActionButton
         v-if="showEdit"
-        @click="editMock"
-        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-        :class="isDark ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-emerald-600 hover:bg-emerald-50'"
+        label="Edit"
+        color="emerald"
         title="Edit this mock's request matcher and response definition"
+        @click="editMock"
       >
-        <PencilSquareIcon class="w-4 h-4" />
-        Edit
-      </button>
-      <button
-        @click="viewMockLogs"
-        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-        :class="isDark ? 'text-sky-400 hover:bg-sky-500/10' : 'text-sky-600 hover:bg-sky-50'"
+        <template #icon="{ iconClass }">
+          <PencilSquareIcon :class="iconClass" />
+        </template>
+      </BaseActionButton>
+      <BaseActionButton
+        label="Logs"
+        color="sky"
         title="View request logs for this mock"
+        @click="viewMockLogs"
       >
-        <ClipboardDocumentListIcon class="w-4 h-4" />
-        Logs
-      </button>
-      <button
+        <template #icon="{ iconClass }">
+          <ClipboardDocumentListIcon :class="iconClass" />
+        </template>
+      </BaseActionButton>
+      <BaseActionButton
         v-if="stubStatus === 'missing'"
-        @click="createStubForMock"
-        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-        :class="isDark ? 'text-amber-300 hover:bg-amber-500/10' : 'text-amber-700 hover:bg-amber-50'"
+        label="click to create"
+        color="amberStrong"
         title="No matching stub on WireMock — click to create it from this mock"
-      >
-        click to create
-      </button>
+        @click="createStubForMock"
+      />
       <button
         v-else-if="stubStatus === 'creating'"
         disabled
@@ -146,25 +146,27 @@ function cancelDelete() {
         <ArrowPathIcon class="w-4 h-4 animate-spin" />
         Creating…
       </button>
-      <button
+      <BaseActionButton
         v-else
-        @click="viewMockStub"
-        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-        :class="isDark ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-indigo-600 hover:bg-indigo-50'"
+        label="Stub"
+        color="indigo"
         title="Open the raw WireMock stub"
+        @click="viewMockStub"
       >
-        <CubeIcon class="w-4 h-4" />
-        Stub
-      </button>
-      <button
-        @click="openDelete"
-        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-        :class="isDark ? 'text-red-400 hover:bg-red-500/10' : 'text-red-500 hover:bg-red-50'"
+        <template #icon="{ iconClass }">
+          <CubeIcon :class="iconClass" />
+        </template>
+      </BaseActionButton>
+      <BaseActionButton
+        label="Delete"
+        color="red"
         title="Permanently delete this mock and its WireMock stub"
+        @click="openDelete"
       >
-        <TrashIcon class="w-4 h-4" />
-        Delete
-      </button>
+        <template #icon="{ iconClass }">
+          <TrashIcon :class="iconClass" />
+        </template>
+      </BaseActionButton>
     </div>
 
     <BaseConfirmModal

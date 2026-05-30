@@ -1,11 +1,10 @@
 <template>
   <div class="min-h-screen" :class="t.pageBg">
     <div class="pt-8">
-      <!-- Reusable PageHeader — same width (max-w-4xl) and shape as
-           the one on /notifications. Pass the page-specific icon
-           through the `icon` slot and the action buttons through
+      <!-- Shared page header from mgv-backoffice. Pass the page-specific
+           icon through the `icon` slot and the action buttons through
            `actions`. -->
-      <PageHeader
+      <BasePageHeader
         title="WireMock Stubs"
         subtitle="Manage and view all API stub mappings"
         icon-color="emerald"
@@ -14,22 +13,16 @@
           <PuzzlePieceIcon class="w-5 h-5" :class="iconClass" />
         </template>
         <template #actions>
-          <!-- Refresh — kept visually identical to NotificationsView's
-               refresh button so the page-level affordance is consistent
-               across views. -->
-          <button
-            @click="handleRefresh"
-            type="button"
+          <BaseToolbarButton
+            label="Refresh"
             :disabled="isLoading"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="isDark
-              ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
             title="Refresh"
+            @click="handleRefresh"
           >
-            <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
-            <span>Refresh</span>
-          </button>
+            <template #icon="{ iconClass }">
+              <ArrowPathIcon :class="[iconClass, { 'animate-spin': isLoading }]" />
+            </template>
+          </BaseToolbarButton>
           <!--
             Delete all stubs on the WireMock server in one call. Routes
             through `DELETE /__admin/mappings`, which wipes both
@@ -37,21 +30,19 @@
             it behind a confirm modal. Disabled when the list is empty
             or while a deletion is already in flight.
           -->
-          <button
-            @click="openDeleteAllModal"
-            type="button"
+          <BaseToolbarButton
+            variant="danger"
+            :label="isDeletingAll ? 'Deleting…' : 'Delete All'"
             :disabled="isDeletingAll || totalStubs === 0"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="isDark
-              ? 'bg-red-600 text-white border-red-600 hover:bg-red-500'
-              : 'bg-red-600 text-white border-red-600 hover:bg-red-700'"
             :title="totalStubs === 0 ? 'No stubs to delete' : 'Delete every stub on the WireMock server'"
+            @click="openDeleteAllModal"
           >
-            <TrashIcon class="w-4 h-4" :class="{ 'animate-pulse': isDeletingAll }" />
-            <span>{{ isDeletingAll ? 'Deleting…' : 'Delete All' }}</span>
-          </button>
+            <template #icon="{ iconClass }">
+              <TrashIcon :class="[iconClass, { 'animate-pulse': isDeletingAll }]" />
+            </template>
+          </BaseToolbarButton>
         </template>
-      </PageHeader>
+      </BasePageHeader>
     </div>
 
     <!-- Main Content -->
@@ -285,31 +276,31 @@
               · Delete         — opens the confirm modal.
           -->
           <div class="flex items-center flex-wrap gap-2 mt-3 pt-3 border-t" :class="t.divider">
-            <button
-              type="button"
-              @click="viewStub(stub.id)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-              :class="isDark ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-indigo-600 hover:bg-indigo-50'"
+            <BaseActionButton
+              full-width
+              label="View Stub"
+              color="indigo"
               title="Open the raw WireMock stub"
+              @click="viewStub(stub.id)"
             >
-              <CubeIcon class="w-4 h-4" />
-              View Stub
-            </button>
-            <button
-              type="button"
-              @click="viewWireMateMock(stub)"
+              <template #icon="{ iconClass }">
+                <CubeIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
+            <BaseActionButton
+              full-width
+              label="Edit WireMate"
+              color="emerald"
               :disabled="!wiremateProjectId(stub)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="isDark
-                ? 'text-emerald-400 hover:bg-emerald-500/10 disabled:hover:bg-transparent'
-                : 'text-emerald-600 hover:bg-emerald-50 disabled:hover:bg-transparent'"
               :title="wiremateProjectId(stub)
                 ? 'Open this stub in the WireMate mock editor'
                 : 'Not a WireMate-managed stub (no projectId in metadata)'"
+              @click="viewWireMateMock(stub)"
             >
-              <PencilSquareIcon class="w-4 h-4" />
-              Edit WireMate
-            </button>
+              <template #icon="{ iconClass }">
+                <PencilSquareIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
             <RouterLink
               v-if="wiremateProjectId(stub)"
               :to="{ name: 'project', params: { id: wiremateProjectId(stub)! } }"
@@ -320,26 +311,28 @@
               <FolderIcon class="w-4 h-4" />
               Project
             </RouterLink>
-            <button
-              type="button"
-              @click="viewStubLogs(stub)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-              :class="isDark ? 'text-sky-400 hover:bg-sky-500/10' : 'text-sky-600 hover:bg-sky-50'"
+            <BaseActionButton
+              full-width
+              label="Logs"
+              color="sky"
               title="View request logs for this stub"
+              @click="viewStubLogs(stub)"
             >
-              <ClipboardDocumentListIcon class="w-4 h-4" />
-              Logs
-            </button>
-            <button
-              type="button"
-              @click="handleDeleteStub(stub)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-              :class="isDark ? 'text-red-400 hover:bg-red-500/10' : 'text-red-500 hover:bg-red-50'"
+              <template #icon="{ iconClass }">
+                <ClipboardDocumentListIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
+            <BaseActionButton
+              full-width
+              label="Delete"
+              color="red"
               title="Permanently delete this stub on the WireMock server"
+              @click="handleDeleteStub(stub)"
             >
-              <TrashIcon class="w-4 h-4" />
-              Delete
-            </button>
+              <template #icon="{ iconClass }">
+                <TrashIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
           </div>
         </div>
       </div>
@@ -385,11 +378,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { BaseConfirmModal, BaseSpinner, BaseToast, BaseToastEnum, useDebouncedRef, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseActionButton, BaseConfirmModal, BasePageHeader, BaseSpinner, BaseToast, BaseToastEnum, BaseToolbarButton, useDebouncedRef, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import { fetchAllStubs, deleteStub, deleteAllStubs } from '../services/stubService'
 import type { StubMapping, StubMappingsResponse } from '../services/stubService'
 import { ClipboardDocumentListIcon, FolderIcon, ArrowPathIcon, PuzzlePieceIcon, MagnifyingGlassIcon, XMarkIcon, TrashIcon, PencilSquareIcon, CubeIcon, FlagIcon, BookmarkIcon, CodeBracketIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/outline'
-import PageHeader from '../components/PageHeader.vue'
 
 // Router & Theme
 const route = useRoute()

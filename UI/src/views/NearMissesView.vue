@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { BaseButton, BaseButtonEnum, BaseConfirmModal, BaseSpinner, BaseToast, BaseToastEnum, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseButton, BaseButtonEnum, BaseConfirmModal, BasePageHeader, BaseSpinner, BaseToast, BaseToastEnum, BaseToolbarButton, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import { ExclamationCircleIcon, ExclamationTriangleIcon, ArrowPathIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import { fetchNearMisses } from '../services/settingsService'
 import { deleteAllRequests } from '../services/requestJournalService'
 import type { NearMissEntry, NearMissesResponse } from '../types/nearMisses'
-import PageHeader from '../components/PageHeader.vue'
 
 const { isDark } = useTheme()
 const t = useThemeClasses()
@@ -112,11 +111,10 @@ onMounted(() => {
 <template>
   <div class="min-h-screen" :class="t.pageBg">
     <div class="pt-8">
-      <!-- Reusable PageHeader — same width (max-w-4xl) and shape as
-           the one on /notifications. Pass the page-specific icon
-           through the `icon` slot and the action buttons through
+      <!-- Shared page header from mgv-backoffice. Pass the page-specific
+           icon through the `icon` slot and the action buttons through
            `actions`. -->
-      <PageHeader
+      <BasePageHeader
         title="Near Misses"
         subtitle="Requests that almost matched a stub — diagnose misconfigured matchers"
         icon-color="red"
@@ -125,43 +123,29 @@ onMounted(() => {
           <ExclamationTriangleIcon class="w-5 h-5" :class="iconClass" />
         </template>
         <template #actions>
-          <!-- Refresh — kept visually identical to NotificationsView's
-               refresh button so the page-level affordance is consistent
-               across views. -->
-          <button
-            @click="loadNearMisses"
-            type="button"
+          <BaseToolbarButton
+            label="Refresh"
             :disabled="isLoading"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="isDark
-              ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
             title="Refresh"
+            @click="loadNearMisses"
           >
-            <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': isLoading }" />
-            <span>Refresh</span>
-          </button>
-          <!--
-            Theme-aware Clear All button, sized to match Refresh on the
-            same toolbar. (BaseButton's RED colour ignored the page's
-            button sizing, leaving the two side-by-side buttons visibly
-            different heights.)
-          -->
-          <button
-            @click="handleClearAll"
-            type="button"
+            <template #icon="{ iconClass }">
+              <ArrowPathIcon :class="[iconClass, { 'animate-spin': isLoading }]" />
+            </template>
+          </BaseToolbarButton>
+          <BaseToolbarButton
+            variant="danger"
+            :label="isDeleting ? 'Clearing…' : 'Clear All'"
             :disabled="isDeleting"
-            class="inline-flex shrink-0 items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-            :class="isDark
-              ? 'bg-red-600 text-white border-red-600 hover:bg-red-500'
-              : 'bg-red-600 text-white border-red-600 hover:bg-red-700'"
             title="Clear all near misses"
+            @click="handleClearAll"
           >
-            <TrashIcon class="w-4 h-4" :class="{ 'animate-pulse': isDeleting }" />
-            <span>{{ isDeleting ? 'Clearing…' : 'Clear All' }}</span>
-          </button>
+            <template #icon="{ iconClass }">
+              <TrashIcon :class="[iconClass, { 'animate-pulse': isDeleting }]" />
+            </template>
+          </BaseToolbarButton>
         </template>
-      </PageHeader>
+      </BasePageHeader>
     </div>
 
     <!-- Main Content -->

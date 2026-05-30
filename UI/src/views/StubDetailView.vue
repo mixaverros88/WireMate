@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, useTemplateRef } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { BaseButton, BaseButtonEnum, BaseConfirmModal, BaseSpinner, BaseToast, BaseToastEnum, methodBadgeBright, statusBadgeTinted, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseButton, BaseButtonEnum, BaseConfirmModal, BaseSpinner, BaseToast, BaseToastEnum, fmtDate, methodBadgeBright, statusBadgeTinted, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import { ArrowLeftIcon, FolderIcon, ClipboardDocumentListIcon, ClipboardDocumentIcon, ClipboardDocumentCheckIcon } from '@heroicons/vue/24/outline'
 import { getStub, deleteStub } from '../services/stubService'
 import type { StubMapping } from '../services/stubService'
@@ -230,15 +230,6 @@ const fullJson = computed(() => {
 
 const methodColor = methodBadgeBright
 const statusColor = (status?: number) => statusBadgeTinted(status, isDark.value)
-
-function formatDate(dateString?: string): string {
-  if (!dateString) return '—'
-  try {
-    return new Date(dateString).toLocaleString()
-  } catch {
-    return dateString
-  }
-}
 
 async function copyToClipboard(text: string, label = 'Text') {
   try {
@@ -499,7 +490,7 @@ async function copyProjectId() {
           >
             <div v-if="stub.createdDate">
               <p class="text-xs uppercase tracking-wide mb-1" :class="t.dimText">Created</p>
-              <p class="text-sm" :class="t.label">{{ formatDate(stub.createdDate) }}</p>
+              <p class="text-sm" :class="t.label">{{ fmtDate(stub.createdDate) }}</p>
             </div>
             <div v-if="stub.response.fixedDelayMilliseconds">
               <p class="text-xs uppercase tracking-wide mb-1" :class="t.dimText">Response Delay</p>

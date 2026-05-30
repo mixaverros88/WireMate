@@ -21,7 +21,7 @@
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.2.4",
     "chart.js": "^4.5.1",
-    "mgv-backoffice": "^1.4.0",
+    "mgv-backoffice": "^1.9.0",
     "tailwindcss": "^4.2.4",
     "vue": "^3.5.33",
     "vue-chartjs": "^5.3.3",

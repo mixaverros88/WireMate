@@ -1,9 +1,12 @@
 /**
- * XSS regression suite for `sanitizeNotificationHtml`.
+ * XSS regression suite for `sanitizeHtml` (provided by mgv-backoffice).
  *
- * Every case here represents a real-world payload class. If one of
- * these stops being neutralised, an attacker (or a backend bug) can
- * smuggle script execution into the page via the notification bell.
+ * The library has no test runner of its own, so this consumer-side
+ * suite guards the exact behaviour the notification bell relies on when
+ * it binds backend HTML into `v-html`. Every case here represents a
+ * real-world payload class. If one of these stops being neutralised, an
+ * attacker (or a backend bug) can smuggle script execution into the
+ * page.
  *
  * Conventions:
  *   - Each test name describes the threat, not the implementation.
@@ -13,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { isSafeHref, sanitizeNotificationHtml } from './sanitizeNotificationHtml'
+import { isSafeHref, sanitizeHtml as sanitizeNotificationHtml } from 'mgv-backoffice'
 
 describe('sanitizeNotificationHtml — empty / null inputs', () => {
   it('returns an empty string for null', () => {

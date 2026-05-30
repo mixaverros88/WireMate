@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { BaseButton, BaseButtonEnum, BaseConfirmModal, BaseSpinner, BaseTextInputModal, BaseToast, BaseToastEnum, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseActionButton, BaseButton, BaseButtonEnum, BaseConfirmModal, BaseSpinner, BaseTextInputModal, BaseToast, BaseToastEnum, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import { ArrowLeftIcon, FolderIcon, PlusIcon, TrashIcon, MagnifyingGlassIcon, DocumentDuplicateIcon, ArrowRightStartOnRectangleIcon, CodeBracketIcon, ClipboardDocumentListIcon, ClipboardDocumentIcon, ClipboardDocumentCheckIcon, ArrowUpTrayIcon, ArrowDownTrayIcon, InboxIcon, FaceFrownIcon, AdjustmentsHorizontalIcon, XMarkIcon, LockClosedIcon, ClockIcon, ExclamationTriangleIcon, ArrowsRightLeftIcon, PaperAirplaneIcon, FlagIcon, BookmarkIcon, ChevronDownIcon, CubeIcon, CommandLineIcon, ArrowPathIcon, PencilSquareIcon, CheckIcon } from '@heroicons/vue/24/outline'
 import type { Project } from '../types/project'
 import type { MockResponse, StringMatcher, BodyPattern } from '../types/mock'
@@ -1799,28 +1799,28 @@ function exportAllMocksAsPostman() {
               <!-- Bottom: actions -->
               <div class="flex items-center gap-2 mt-3 pt-3 border-t"
                 :class="t.divider">
-                <button
-                  @click="editMock(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-emerald-400 hover:bg-emerald-500/10'
-                    : 'text-emerald-600 hover:bg-emerald-50'"
+                <BaseActionButton
+                  full-width
+                  label="Edit"
+                  color="emerald"
                   title="Edit this mock's request matcher and response definition"
+                  @click="editMock(mock)"
                 >
-                  <PencilSquareIcon class="w-4 h-4" />
-                  Edit
-                </button>
-                <button
-                  @click="viewMockLogs(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-sky-400 hover:bg-sky-500/10'
-                    : 'text-sky-600 hover:bg-sky-50'"
+                  <template #icon="{ iconClass }">
+                    <PencilSquareIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
+                <BaseActionButton
+                  full-width
+                  label="Logs"
+                  color="sky"
                   title="View request logs for this mock"
+                  @click="viewMockLogs(mock)"
                 >
-                  <ClipboardDocumentListIcon class="w-4 h-4" />
-                  Logs
-                </button>
+                  <template #icon="{ iconClass }">
+                    <ClipboardDocumentListIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
                 <!--
                   Stub slot.
                     • When the matching stub is missing from WireMock we
@@ -1838,17 +1838,14 @@ function exportAllMocksAsPostman() {
                       missing just because we haven't finished probing
                       WireMock yet.
                 -->
-                <button
+                <BaseActionButton
                   v-if="stubStatuses[mock.id] === 'missing'"
-                  @click="createStubForMock(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-amber-300 hover:bg-amber-500/10'
-                    : 'text-amber-700 hover:bg-amber-50'"
+                  full-width
+                  label="click to create"
+                  color="amberStrong"
                   title="No matching stub on WireMock — click to create it from this mock"
-                >
-                  click to create
-                </button>
+                  @click="createStubForMock(mock)"
+                />
                 <button
                   v-else-if="stubStatuses[mock.id] === 'creating'"
                   disabled
@@ -1859,18 +1856,18 @@ function exportAllMocksAsPostman() {
                   <ArrowPathIcon class="w-4 h-4 animate-spin" />
                   Creating…
                 </button>
-                <button
+                <BaseActionButton
                   v-else
-                  @click="viewMockStub(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-indigo-400 hover:bg-indigo-500/10'
-                    : 'text-indigo-600 hover:bg-indigo-50'"
+                  full-width
+                  label="Stub"
+                  color="indigo"
                   title="Open the raw WireMock stub"
+                  @click="viewMockStub(mock)"
                 >
-                  <CubeIcon class="w-4 h-4" />
-                  Stub
-                </button>
+                  <template #icon="{ iconClass }">
+                    <CubeIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
                 <!--
                   Copy cURL — surfaces the backend-persisted `curl`
                   string. Disabled and visibly dimmed when the mock has
@@ -1878,29 +1875,29 @@ function exportAllMocksAsPostman() {
                   cURL can't be generated), so users understand the
                   affordance is conditional rather than broken.
                 -->
-                <button
-                  @click="copyCurlFromMock(mock)"
+                <BaseActionButton
+                  full-width
+                  label="cURL"
+                  color="teal"
                   :disabled="!mock.curl"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  :class="isDark
-                    ? 'text-teal-400 hover:bg-teal-500/10 disabled:hover:bg-transparent'
-                    : 'text-teal-600 hover:bg-teal-50 disabled:hover:bg-transparent'"
                   :title="mock.curl ? 'Copy cURL to clipboard' : 'No cURL available for this mock'"
+                  @click="copyCurlFromMock(mock)"
                 >
-                  <CommandLineIcon class="w-4 h-4" />
-                  cURL
-                </button>
-                <button
-                  @click="handleCloneMock(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-amber-400 hover:bg-amber-500/10'
-                    : 'text-amber-600 hover:bg-amber-50'"
+                  <template #icon="{ iconClass }">
+                    <CommandLineIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
+                <BaseActionButton
+                  full-width
+                  label="Clone"
+                  color="amber"
                   title="Clone this mock into this or another project"
+                  @click="handleCloneMock(mock)"
                 >
-                  <DocumentDuplicateIcon class="w-4 h-4" />
-                  Clone
-                </button>
+                  <template #icon="{ iconClass }">
+                    <DocumentDuplicateIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
                 <button
                   type="button"
                   :disabled="!hasOtherProjects"
@@ -1919,28 +1916,28 @@ function exportAllMocksAsPostman() {
                   <ArrowRightStartOnRectangleIcon class="w-4 h-4" aria-hidden="true" />
                   Move
                 </button>
-                <button
-                  @click="exportMockAsPostman(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-sky-400 hover:bg-sky-500/10'
-                    : 'text-sky-600 hover:bg-sky-50'"
+                <BaseActionButton
+                  full-width
+                  label="Export"
+                  color="sky"
                   title="Export as Postman collection"
+                  @click="exportMockAsPostman(mock)"
                 >
-                  <ArrowDownTrayIcon class="w-4 h-4" />
-                  Export
-                </button>
-                <button
-                  @click="handleDeleteMock(mock)"
-                  class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-                  :class="isDark
-                    ? 'text-red-400 hover:bg-red-500/10'
-                    : 'text-red-500 hover:bg-red-50'"
+                  <template #icon="{ iconClass }">
+                    <ArrowDownTrayIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
+                <BaseActionButton
+                  full-width
+                  label="Delete"
+                  color="red"
                   title="Permanently delete this mock and its WireMock stub"
+                  @click="handleDeleteMock(mock)"
                 >
-                  <TrashIcon class="w-4 h-4" />
-                  Delete
-                </button>
+                  <template #icon="{ iconClass }">
+                    <TrashIcon :class="iconClass" />
+                  </template>
+                </BaseActionButton>
               </div>
             </div>
               </div><!-- /cards container -->

@@ -1,11 +1,10 @@
 <template>
   <div class="min-h-screen" :class="t.pageBg">
     <div class="pt-8">
-      <!-- Reusable PageHeader — same width (max-w-4xl) and shape as
-           the one on /notifications. Pass the page-specific icon
-           through the `icon` slot and the action buttons through
+      <!-- Shared page header from mgv-backoffice. Pass the page-specific
+           icon through the `icon` slot and the action buttons through
            `actions`. -->
-      <PageHeader
+      <BasePageHeader
         title="Logs"
         subtitle="View all captured HTTP requests from WireMock"
         icon-color="sky"
@@ -17,38 +16,33 @@
           <!-- Refresh — labelled bordered button, kept visually consistent
                with the equivalent affordance in NotificationsView so the
                page-level refresh icon never changes shape between tabs. -->
-          <button
-            @click="handleRefresh"
-            type="button"
+          <BaseToolbarButton
+            label="Refresh"
             :disabled="isSearching || isLoading"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="isDark
-              ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700'
-              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
             title="Refresh"
+            @click="handleRefresh"
           >
-            <ArrowPathIcon class="w-4 h-4" :class="{ 'animate-spin': isSearching || isLoading }" />
-            <span>Refresh</span>
-          </button>
+            <template #icon="{ iconClass }">
+              <ArrowPathIcon :class="[iconClass, { 'animate-spin': isSearching || isLoading }]" />
+            </template>
+          </BaseToolbarButton>
           <!-- Delete-all wipes the WireMock request journal in one shot
                (DELETE /__admin/requests). Disabled when nothing is
                loaded so the user can't fire a no-op against a possibly-
                down admin port. Confirms before destroying the journal. -->
-          <button
-            @click="openDeleteAllModal"
-            type="button"
+          <BaseToolbarButton
+            variant="danger"
+            label="Delete All"
             :disabled="isDeletingAll || requests.length === 0"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :class="isDark
-              ? 'bg-red-600/90 text-white border-red-700 hover:bg-red-600'
-              : 'bg-red-600 text-white border-red-600 hover:bg-red-700'"
             title="Delete all requests"
+            @click="openDeleteAllModal"
           >
-            <TrashIcon class="w-4 h-4" :class="{ 'animate-pulse': isDeletingAll }" />
-            <span>Delete All</span>
-          </button>
+            <template #icon="{ iconClass }">
+              <TrashIcon :class="[iconClass, { 'animate-pulse': isDeletingAll }]" />
+            </template>
+          </BaseToolbarButton>
         </template>
-      </PageHeader>
+      </BasePageHeader>
     </div>
 
     <!-- Main Content -->
@@ -565,7 +559,7 @@
               </div>
               <div class="sm:col-span-2">
                 <p :class="t.subtleText" class="uppercase tracking-wide font-medium">Logged</p>
-                <p :class="t.label" class="mt-1">{{ formatDate(request.request.loggedDate) }}</p>
+                <p :class="t.label" class="mt-1">{{ fmtDate(request.request.loggedDate) }}</p>
               </div>
             </div>
           </div>
@@ -598,41 +592,41 @@
               <FolderIcon class="w-4 h-4" />
               Project
             </RouterLink>
-            <button
+            <BaseActionButton
               v-if="getEditableMockParams(request)"
-              type="button"
-              @click.stop="editMockFromRequest(request)"
-              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-              :class="isDark ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-emerald-600 hover:bg-emerald-50'"
+              label="Edit WireMate"
+              color="emerald"
               title="Open this stub in the WireMate mock editor"
+              @click.stop="editMockFromRequest(request)"
             >
-              <WireMateLogo :size="16" />
-              Edit WireMate
-            </button>
-            <button
+              <template #icon>
+                <WireMateLogo :size="16" />
+              </template>
+            </BaseActionButton>
+            <BaseActionButton
               v-if="getMatchedStubId(request)"
-              type="button"
-              @click.stop="viewMatchedStub(request)"
-              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer"
-              :class="isDark ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-indigo-600 hover:bg-indigo-50'"
+              label="Stub"
+              color="indigo"
               title="Open the raw WireMock stub"
+              @click.stop="viewMatchedStub(request)"
             >
-              <CubeIcon class="w-4 h-4" />
-              Stub
-            </button>
-            <button
+              <template #icon="{ iconClass }">
+                <CubeIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
+            <BaseActionButton
               v-if="request.id && !request.id.startsWith('find-')"
-              type="button"
-              @click.stop="openDeleteRequestModal(request)"
+              label="Delete"
+              color="red"
               :disabled="deletingIds.has(request.id)"
               :aria-label="`Delete request ${request.request.url}`"
-              class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="isDark ? 'text-red-400 hover:bg-red-500/10' : 'text-red-500 hover:bg-red-50'"
               title="Delete this request"
+              @click.stop="openDeleteRequestModal(request)"
             >
-              <TrashIcon class="w-4 h-4" />
-              Delete
-            </button>
+              <template #icon="{ iconClass }">
+                <TrashIcon :class="iconClass" />
+              </template>
+            </BaseActionButton>
           </div>
         </div>
 
@@ -694,7 +688,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { BaseConfirmModal, BaseSpinner, BaseToast, BaseToastEnum, methodBadgeSolid, statusBadgeSolid, useDebouncedRef, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
+import { BaseActionButton, BaseConfirmModal, BasePageHeader, BaseSpinner, BaseToast, BaseToastEnum, BaseToolbarButton, fmtDate, methodBadgeSolid, statusBadgeSolid, useDebouncedRef, useTheme, useThemeClasses, useToast } from 'mgv-backoffice'
 import { findRequests, getAllRequests, deleteAllRequests, deleteRequest } from '../services/requestJournalService'
 // Note: removeRequestsByPattern was previously imported here for the
 // "Remove matching" toolbar button, which has been removed in favour of
@@ -709,7 +703,6 @@ import {
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
 import WireMateLogo from '../components/WireMateLogo.vue'
-import PageHeader from '../components/PageHeader.vue'
 
 import {
   Chart as ChartJS,
@@ -1034,14 +1027,6 @@ const barOptions = computed(() => ({
 
 const getMethodBgColor = methodBadgeSolid
 const getStatusCodeColor = statusBadgeSolid
-
-function formatDate(dateStr: string | number): string {
-  try {
-    return new Date(dateStr).toLocaleString()
-  } catch {
-    return String(dateStr)
-  }
-}
 
 async function handleRefresh() {
   // Re-run the current search so Refresh behaves naturally whether the
